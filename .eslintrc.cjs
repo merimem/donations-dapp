@@ -46,6 +46,7 @@ module.exports = {
         ],
         "import/resolver": {
           typescript: {},
+          alias: [["~/*", "./app/*"]],
         },
       },
     },
@@ -81,4 +82,4 @@ module.exports = {
       },
     },
   ],
-};
+}
