@@ -1,8 +1,0 @@
-node_modules
-
-/frontend/.cache
-/frontend/build
-/build
-/frontend/.env
-/frontend/.qodo
-/frontend/.vite
