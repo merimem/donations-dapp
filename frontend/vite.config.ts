@@ -23,7 +23,9 @@ export default defineConfig({
       // assetsBuildDirectory: "public/build",
       // publicPath: "/build/",
       // serverBuildPath: "build/index.js",
+      ignoredRouteFiles: ["**/.*"],
     }),
+
     {
       name: "remix-manifest-resolver",
       resolveId(id) {
@@ -40,11 +42,14 @@ export default defineConfig({
       },
     },
     tsconfigPaths(),
+    // nodePolyfills(),
     // nodePolyfills({
     //   globals: {
-    //     Buffer: true,
-    //     // http: true,
+    //     Buffer: true, // Polyfill for `buffer` module
+    //     global: true, // Ensures `global` is available (like in Node)
+    //     process: true, // Ensures `process` is polyfilled
     //   },
     // }),
   ],
+  build: { modulePreload: { polyfill: true } },
 })
