@@ -1,0 +1,48 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  tests:
+    name: Backend Smart Contract Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 20.11.1
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.11.1
+
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: backend/node_modules
+          key: backend-node_modules-${{ hashFiles('backend/package-lock.json') }}
+
+      - name: Install dependencies
+        working-directory: backend
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run Tests
+        working-directory: backend
+        run: npx hardhat test
+
+  release:
+    name: Create New Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Bump Version and Create Tag
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          npm version patch -m "chore(release): v%s"
+          git push origin main --tags
