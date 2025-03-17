@@ -42,14 +42,6 @@ export default defineConfig({
       },
     },
     tsconfigPaths(),
-    // nodePolyfills(),
-    // nodePolyfills({
-    //   globals: {
-    //     Buffer: true, // Polyfill for `buffer` module
-    //     global: true, // Ensures `global` is available (like in Node)
-    //     process: true, // Ensures `process` is polyfilled
-    //   },
-    // }),
   ],
-  build: { modulePreload: { polyfill: true } },
+  // build: { modulePreload: { polyfill: true } },
 })

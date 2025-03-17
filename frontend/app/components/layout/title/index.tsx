@@ -8,7 +8,12 @@ interface TitleProps extends React.PropsWithChildren {
 const index = ({ children, type }: TitleProps) => {
   const Tag = type
 
-  const style = type === "h1" ? "text-lg font-semibold text-primary" : undefined
+  const style =
+    type === "h1"
+      ? "text-4xl font-semibold text-primary"
+      : type === "h2"
+      ? "text-2xl font-semibold text-secondary"
+      : undefined
   return <Tag className={clsx(style)}>{children}</Tag>
 }
 

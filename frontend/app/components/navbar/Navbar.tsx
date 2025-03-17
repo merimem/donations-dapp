@@ -1,10 +1,14 @@
 import { Link } from "@remix-run/react"
 import React from "react"
 import logo from "../../../public/logo.png"
+import { useAccount } from "wagmi"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
+import { ROUTES } from "~/utils/routes/routes.constants"
+import { UserCircleIcon } from "@heroicons/react/24/solid"
 
 const Navbar = () => {
   const [theme, setTheme] = React.useState("dark")
-
+  const { isConnected } = useAccount()
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
   }
@@ -86,12 +90,30 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="navbar-end gap-2 ">
-        <Link className="btn btn-secondary" to="/projects/new">
-          Association
-        </Link>
-        <Link className="btn btn-accent" to="">
-          Donate
-        </Link>
+        {isConnected ? (
+          <ul className="menu menu-horizontal gap-4">
+            <li>
+              <Link to={ROUTES.PROFILE} className="p-2">
+                <UserCircleIcon className="h-5 w-5" />
+                My Profile
+              </Link>
+            </li>
+            <li>
+              <ConnectButton showBalance={false} />
+            </li>
+          </ul>
+        ) : (
+          <ul className="menu menu-horizontal">
+            <li>
+              <Link className="btn btn-secondary" to="/connect/association">
+                Association
+              </Link>
+            </li>
+            <Link className="btn btn-accent" to="/connect/donator">
+              Donate
+            </Link>
+          </ul>
+        )}
         <input
           type="checkbox"
           value="synthwave"
