@@ -13,10 +13,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Use Node.js 20.11.1
-        uses: actions/setup-node@v3 # 🔥 Mise à jour vers la version correcte
+        uses: actions/setup-node@v3
         with:
           node-version: 20.11.1
-          cache: "npm" # ✅ Gestion du cache directement avec cette option
+          cache: "npm"
           cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies

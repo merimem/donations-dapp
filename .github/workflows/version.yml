@@ -7,31 +7,15 @@ on:
 jobs:
   release:
     name: Create New Version
+    if: "!contains(github.event.head_commit.message, 'chore(release):')"
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json # 👉 Précise le bon chemin pour le cache
-
-      - name: Install Dependencies
-        run: |
-          cd frontend
-          npm ci
-
       - name: Bump Version and Create Tag
         run: |
-          cd frontend
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           npm version patch -m "chore(release): v%s"
-          git add package.json package-lock.json
-          git commit -m "chore(release): bump version"
           git push origin main --tags
