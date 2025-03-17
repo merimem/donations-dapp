@@ -13,7 +13,6 @@ async function main() {
   //     value: "1000",
   //   })
   //   await tx.wait() // Attends que la transaction soit validée
-  //console.log(`Donation réussie avec la tx: ${tx.hash}`)
   const poolIndex = hre.ethers.toBigInt(0)
   const pool = await contract.pools(poolIndex)
   console.log(`Pool ${0} balance: ${hre.ethers.formatEther(pool.balance)} ETH`)

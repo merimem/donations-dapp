@@ -3,9 +3,10 @@ import React from "react"
 
 interface TitleProps extends React.PropsWithChildren {
   type: "h1" | "h2" | "h3"
+  className?: string
 }
 
-const index = ({ children, type }: TitleProps) => {
+const index = ({ children, type, className }: TitleProps) => {
   const Tag = type
 
   const style =
@@ -14,7 +15,7 @@ const index = ({ children, type }: TitleProps) => {
       : type === "h2"
       ? "text-2xl font-semibold text-secondary"
       : undefined
-  return <Tag className={clsx(style)}>{children}</Tag>
+  return <Tag className={clsx(style, className)}>{children}</Tag>
 }
 
 export default index

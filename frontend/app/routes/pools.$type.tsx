@@ -1,9 +1,5 @@
-import {
-  MetaFunction,
-  Navigate,
-  useNavigate,
-  useParams,
-} from "@remix-run/react"
+import { ArrowLeftIcon } from "@heroicons/react/24/solid"
+import { Link, MetaFunction, useNavigate, useParams } from "@remix-run/react"
 import { formatEther } from "viem"
 import { useReadContract } from "wagmi"
 import Donate from "~/components/layout/Donate"
@@ -26,19 +22,20 @@ export default function Connect() {
   if (!type || !(type in PoolType)) {
     navigate("/")
   }
-  console.log("PoolType[type]", PoolType[type])
-
-  const value: number = type ? PoolType[type] : 0
-  console.log("value", value)
+  const value: bigint = type ? PoolType[type] : 0
   const { data: pool, refetch } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: "getPoolBalances",
     args: [value],
   })
-  console.log("pools", pool)
+
   return (
     <div>
+      <Link className="btn btn-soft btn-accent content" to="/pools">
+        <ArrowLeftIcon className="w-4 h-4" />
+        See all pools
+      </Link>
       <Hero
         backroungImageUrl={`/${type}.jpg`}
         title={type || "Pool"}
@@ -52,7 +49,7 @@ export default function Connect() {
         <p>
           Pool contains{" "}
           <span className="text-secondary">
-            {pool && formatEther(pool)} Eth
+            {pool ? `${formatEther(pool)} Eth` : undefined}
           </span>
         </p>
       </Hero>

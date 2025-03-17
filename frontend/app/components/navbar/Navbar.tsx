@@ -71,22 +71,11 @@ const Navbar = () => {
           <li>
             <Link to={`/projects`}>Projects</Link>
           </li>
-          <li>
-            <details>
-              <summary>Community</summary>
-              <ul className="p-2">
-                <li>
-                  <a>Submenu 1</a>
-                </li>
-                <li>
-                  <a>Submenu 2</a>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <a>Item 3</a>
-          </li>
+          {isConnected && (
+            <li>
+              <Link to={ROUTES.POOLS}>Pools</Link>
+            </li>
+          )}
         </ul>
       </div>
       <div className="navbar-end gap-2 ">

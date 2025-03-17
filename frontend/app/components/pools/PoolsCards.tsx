@@ -20,11 +20,6 @@ const PoolsCards = () => {
             {Object.keys(PoolType)
               .filter((key) => isNaN(Number(key)))
               .map((key) => {
-                console.log(
-                  `Pool: ${key}, Value: ${
-                    PoolType[key as keyof typeof PoolType]
-                  }`
-                )
                 return (
                   <Card
                     imageUrl={`${key}.jpg`}
