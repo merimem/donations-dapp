@@ -1,3 +1,4 @@
+import type { LinksFunction } from "@remix-run/node"
 import {
   Links,
   Meta,
@@ -5,11 +6,10 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react"
-import type { LinksFunction } from "@remix-run/node"
 
-import "./tailwind.css"
-import Navbar from "./components/navbar/Navbar"
 import Footer from "./components/footer/Footer"
+import Navbar from "./components/navbar/Navbar"
+import "./tailwind.css"
 import { Providers } from "./utils/Providers"
 
 export const links: LinksFunction = () => [

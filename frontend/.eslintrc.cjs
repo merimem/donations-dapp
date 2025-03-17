@@ -34,6 +34,10 @@ module.exports = {
         "plugin:react/jsx-runtime",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
+        "@remix-run/eslint-config",
+        "@remix-run/eslint-config/node",
+        "@remix-run/eslint-config/jest-testing-library",
+        "prettier",
       ],
       settings: {
         react: {

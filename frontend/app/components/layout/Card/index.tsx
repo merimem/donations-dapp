@@ -1,12 +1,14 @@
 import clsx from "clsx"
+import { ReactNode } from "react"
 
 interface CardProps {
   imageUrl?: string
   textBtn?: string
   title: string
-  description: string
+  description: ReactNode
   className?: string
   imageClassName?: string
+  onClick?: () => void
 }
 
 const index = ({
@@ -16,9 +18,13 @@ const index = ({
   textBtn,
   className,
   imageClassName,
+  onClick,
 }: CardProps) => {
   return (
-    <div className={clsx(className, "card bg-base-100 shadow-sm")}>
+    <div
+      className={clsx(className, "card bg-base-100 shadow-sm")}
+      onClick={onClick}
+    >
       {imageUrl && (
         <figure>
           <img src={imageUrl} alt="Album" className={clsx(imageClassName)} />
@@ -26,7 +32,7 @@ const index = ({
       )}
       <div className="card-body">
         <h2 className="card-title font-bold capitalize text-xl">{title}</h2>
-        <p className="italic">{description}</p>
+        <div className="italic">{description}</div>
         {textBtn && (
           <div className="card-actions justify-end">
             <button className="btn btn-primary ">{textBtn}</button>
