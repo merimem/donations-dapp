@@ -63,15 +63,14 @@ contract DonationPools is Ownable {
 
         uint256 veraReward = msg.value * VERA_REWARD_RATE;
         veraToken.mint(msg.sender, veraReward);   
-        emit DonationReceived(msg.sender, PoolType.NaturalDisasters, msg.value);
+        emit DonationReceived(msg.sender, _pool, msg.value);
     }
 
     function getContribution(PoolType _pool, address _donor) external view returns (uint256) {
         return pools[_pool].contributions[_donor];
     }
 
-   function getPoolBalances(uint256 _index) external view returns (uint256) {
-    require(_index < 6, "Invalid pool index"); // Assurez-vous que l'index est valide
-    return pools[PoolType(_index)].balance;
+   function getPoolBalances(PoolType _pool) external view returns (uint256) {
+    return pools[_pool].balance;
 }
 }
