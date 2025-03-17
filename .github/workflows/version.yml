@@ -27,8 +27,6 @@ jobs:
           npm ci
 
       - name: Bump Version and Create Tag
-        if: "!contains(github.event.head_commit.message, 'chore(release):')"
-        runs-on: ubuntu-latest
         run: |
           cd frontend
           git config --global user.name 'GitHub Actions'
