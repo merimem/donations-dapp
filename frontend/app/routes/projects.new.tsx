@@ -19,7 +19,6 @@ export const action: ActionFunction = async ({ request }) => {
     image: formData.get("image") as File,
   }
   try {
-    console.log("data.image", data.image)
     const imageBlob = await data.image.arrayBuffer()
     const imageBuffer = Buffer.from(imageBlob)
 

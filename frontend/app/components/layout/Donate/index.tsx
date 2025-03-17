@@ -11,7 +11,6 @@ interface DonateProps {
   poolNumber: number
 }
 const Donate = ({ poolNumber }: DonateProps) => {
-  console.log("poolNumber", poolNumber)
   const [amount, setAmount] = useState("")
   const { address } = useAccount()
 

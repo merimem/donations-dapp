@@ -17,7 +17,6 @@ export const loader = async () => {
 
 export default function ProjectLists() {
   const { projects } = useLoaderData() as LoaderData
-  console.log("projects", projects)
   return (
     <div>
       <Card

@@ -12,8 +12,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Change to frontend directory
+        run: cd frontend
+
       - name: Bump Version and Create Tag
         run: |
+          cd frontend
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           npm version patch -m "chore(release): v%s"
