@@ -1,11 +1,8 @@
 import type { MetaFunction } from "@remix-run/node"
-import Hero from "~/components/layout/Hero"
-import flower from "../../public/hands.jpg"
-import logo from "../../public/logo.png"
 import { Link } from "@remix-run/react"
-import { useReadContract } from "wagmi"
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from "~/config/contract"
+import Hero from "~/components/layout/Hero"
 import PoolsCards from "~/components/pools/PoolsCards"
+import flower from "../../public/hands.jpg"
 
 export const meta: MetaFunction = () => {
   return [

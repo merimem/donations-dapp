@@ -1,13 +1,10 @@
-import { PROJECT_STATUS } from "./project.constants"
-
 export type Project = {
   id: number
   title: string
   description: string
   targetAmount: number
-  amountRaised: number
-  status: PROJECT_STATUS
-  startDate: string
+  poolType: string
+  projectId: string
 }
 
 export type GetAllProjects = {
@@ -15,19 +12,15 @@ export type GetAllProjects = {
   title: string
   description: string
   targetAmount: number
-  amountRaised: number
-  status: string
-  startDate: string
+  projectId: string
 }
 
 export type CreateProject = {
   title: string
   description: string
   targetAmount: number
-  amountRaised: 0
-  status: PROJECT_STATUS.ACTIVE
-  startDate: string
-  image: Buffer<ArrayBuffer>
+  projectId: string
+  poolType: string
 }
 
 export type UpdateProject = {
@@ -37,5 +30,12 @@ export type UpdateProject = {
   targetAmount: number
   amountRaised: number
   status: string
-  startDate: string
+}
+
+export enum ProjectStatus {
+  Pending = 0,
+  Approved = "approved",
+  Rejected = "rejected",
+  Funded = "funded",
+  Completed = "completed",
 }

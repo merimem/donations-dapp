@@ -19,13 +19,11 @@ model ContactList {
 
 model ProjectList {
  id             Int     @id @default(autoincrement())
+ projectId      String  @unique @default("TEMPORARY_ID")
  title          String
  description    String
  targetAmount   Float  
- amountRaised   Float
- status         String
- startDate      String
- image          Bytes?
+ poolType       String
  createdAt      DateTime @default(now())
  updatedAt      DateTime @updatedAt
 }

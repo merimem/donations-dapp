@@ -1,21 +1,19 @@
 import { MetaFunction } from "@remix-run/node"
+import { useNavigate } from "@remix-run/react"
+import { useEffect, useMemo, useState } from "react"
 import { formatEther } from "viem"
-import { useAccount, useReadContract } from "wagmi"
-import { readContract } from "@wagmi/core"
+import { useAccount } from "wagmi"
+import EthereumIcon from "~/components/layout/icons/EthereumIcon"
+import Loading from "~/components/layout/Loading"
 import Title from "~/components/layout/title"
+import TableDonations from "~/components/profile/TableDonations"
 import {
   CONTRACT_ABI,
   CONTRACT_ADDRESS,
   CONTRACT_VERA_ABI,
   CONTRACT_VERA_ADDRESS,
 } from "~/config/contract"
-import { useNavigate, useNavigation } from "@remix-run/react"
-import Loading from "~/components/layout/Loading"
-import { useEffect, useMemo, useState } from "react"
 import { publicClient } from "~/utils/client"
-import EthereumIcons from "~/components/layout/icons/EthereumIcon"
-import EthereumIcon from "~/components/layout/icons/EthereumIcon"
-import TableDonations from "~/components/profile/TableDonations"
 
 export const meta: MetaFunction = () => {
   return [

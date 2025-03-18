@@ -1,8 +1,9 @@
 import {
   createProjectDB,
   getAllProjectsDB,
+  getProjectByprojectIdDB,
 } from "prisma/modules/project/project"
-import { CreateProject } from "./project.typedefs"
+import { CreateProject, Project } from "./project.typedefs"
 
 export const getAllProjects = async () => {
   try {
@@ -18,4 +19,14 @@ interface CreateProjectProps {
 
 export const createProject = async ({ project }: CreateProjectProps) => {
   return createProjectDB(project).then(() => {})
+}
+
+interface GetProjectByprojectIdProps {
+  projectId: Project["projectId"]
+}
+
+export const getProjectByprojectId = async ({
+  projectId,
+}: GetProjectByprojectIdProps) => {
+  return getProjectByprojectIdDB(projectId)
 }

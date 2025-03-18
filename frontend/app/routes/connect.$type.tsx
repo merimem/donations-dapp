@@ -1,8 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { MetaFunction, useNavigate } from "@remix-run/react"
 import { useEffect } from "react"
-import { useAccount, useReadContract } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import { useAccount } from "wagmi"
 
 export const meta: MetaFunction = () => {
   return [

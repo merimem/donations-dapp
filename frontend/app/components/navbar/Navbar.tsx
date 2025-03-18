@@ -92,7 +92,7 @@ const Navbar = () => {
             </li>
           </ul>
         ) : (
-          <ul className="menu menu-horizontal">
+          <ul className="menu menu-horizontal gap-4">
             <li>
               <Link className="btn btn-secondary" to="/connect/association">
                 Association
