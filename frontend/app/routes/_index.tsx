@@ -6,8 +6,8 @@ import flower from "../../public/hands.jpg"
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Chain4Good" },
+    { name: "description", content: "Welcome to Chain4Good!" },
   ]
 }
 

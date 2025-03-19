@@ -6,7 +6,6 @@ export default buildModule("DonationPoolsModule", (m) => {
   console.log("deployer", deployer)
   const veraToken = m.contract("VERA")
   const donationPools = m.contract("DonationPools", [veraToken])
-  const [veraOwner] = ethers.getSigners()
   m.call(veraToken, "transferOwnership", [donationPools])
 
   return { veraToken, donationPools }
