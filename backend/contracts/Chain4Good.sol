@@ -28,23 +28,57 @@ contract DonationPools is Ownable {
     }
 
     enum UserType { Donator, Association }
+    enum ProjectStatus { Pending, Approved, Funded, Rejected, Completed }
 
     struct Pool {
         uint256 balance;
         mapping(address => uint256) contributions;
     }
+    struct Project {
+        PoolType poolType;
+        uint256 amountRequired;
+        ProjectStatus status;
+    }
 
+    struct Donator {
+        bool isRegistered;
+        bool hasVoted;
+        uint256 votedProposalId;
+    }
+
+    mapping(address => Donator) donators;
     mapping(PoolType => Pool) public pools;
+    mapping(uint256 => Project) public projects;
 
     uint256 public constant VERA_REWARD_RATE = 1000; // Example: 1 ETH = 1000 VERA
+    uint256[] public projectIds;
 
+    event DonaterRegistered(address donatorAddress);
     event DonationReceived(address indexed donor, PoolType pool, uint256 amount);
+    event ProjectCreated(uint256 projectId, PoolType poolType, uint256 amountRequired);
+    event ProjectStatusChanged(uint256 projectId, ProjectStatus status);
+    
 
     error DonationMustBeGreaterThanZero();
+    error DonatorAlreadyRegistered();
+    error NotValidAddress();
 
     modifier validDonation() {
         if (msg.value == 0) revert DonationMustBeGreaterThanZero();
         _;    
+    }
+
+    modifier onlyNotRegistered(address _address) {
+        require(
+            donators[_address].isRegistered == false,
+            DonatorAlreadyRegistered()
+        );
+        _;
+    }
+
+    modifier validAddress(address _addr) {
+        require(_addr != address(0), NotValidAddress());
+        _;
     }
    
 
@@ -54,6 +88,16 @@ contract DonationPools is Ownable {
         veraToken = VERA(_veraTokenAddress);
         
     }
+
+    // function registerDonator(address _address)
+    //     external
+    //     onlyNotRegistered(_address)
+    //     validAddress(_address)
+    // {
+    //     donators[_address].isRegistered = true;
+    //     emit DonaterRegistered(_address);
+    // }
+
 
 
     function donate(PoolType _pool) external payable validDonation {
@@ -71,6 +115,40 @@ contract DonationPools is Ownable {
     }
 
    function getPoolBalances(PoolType _pool) external view returns (uint256) {
-    return pools[_pool].balance;
+        return pools[_pool].balance;
+    }
+
+//add who creates the project
+    function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired) external  {
+        require(_amountRequired > 0, "Amount must be greater than zero");
+
+        projects[_projectId] = Project({
+            poolType: _poolType,
+            amountRequired: _amountRequired,
+            status: ProjectStatus.Pending
+        });
+        projectIds.push(_projectId); 
+        emit ProjectCreated(_projectId, _poolType, _amountRequired);
+    }
+
+   function getProject(uint256 _projectId) external view returns (Project memory) {
+        return projects[_projectId];
+    }
+
+   function getAllProjects() external view returns (uint256[] memory, Project[] memory) {
+    Project[] memory projectList = new Project[](projectIds.length);
+
+    for (uint256 i = 0; i < projectIds.length; i++) {
+        projectList[i] = projects[projectIds[i]];
+    }
+
+    return (projectIds, projectList);
 }
+
+//require project exists
+    function changeProjectStatus(uint256 _projectId, ProjectStatus _status) external onlyOwner {      
+        projects[_projectId].status = _status;
+        emit ProjectStatusChanged(_projectId, _status);
+    }
+
 }

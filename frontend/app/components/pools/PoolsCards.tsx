@@ -5,8 +5,11 @@ import { PoolType } from "~/modules/pools/pools.typedefs"
 import Card from "../layout/Card"
 import { useNavigate } from "@remix-run/react"
 import { ROUTES } from "~/utils/routes/routes.constants"
+import { Project } from "~/modules/projects/project.typedefs"
 
-const PoolsCards = () => {
+interface PoolsCardsParams {}
+
+const PoolsCards = ({}: PoolsCardsParams) => {
   const navigate = useNavigate()
   const { isConnected } = useAccount()
   return (

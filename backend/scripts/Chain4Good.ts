@@ -14,8 +14,8 @@ async function main() {
   //   })
   //   await tx.wait() // Attends que la transaction soit validée
   const poolIndex = hre.ethers.toBigInt(0)
-  const pool = await contract.pools(poolIndex)
-  console.log(`Pool ${0} balance: ${hre.ethers.formatEther(pool.balance)} ETH`)
+  //const pool = await contract.pools(poolIndex)
+  // console.log(`Pool ${0} balance: ${hre.ethers.formatEther(pool.balance)} ETH`)
   //.utils.formatEther(pool.balance)} ETH`
 }
 

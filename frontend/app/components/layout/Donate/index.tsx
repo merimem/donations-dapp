@@ -71,8 +71,12 @@ const Donate = ({ poolNumber }: DonateProps) => {
         {isPending ? "Depositing..." : "Deposit"}
       </button> */}
       {hash && <div>Transaction Hash: {hash}</div>}
-      {isConfirming && <div>Waiting for confirmation...</div>}
-      {isConfirmed && <div>Transaction confirmed.</div>}
+      {isConfirming && (
+        <div className="text-alert">Waiting for confirmation...</div>
+      )}
+      {isConfirmed && (
+        <div className="text-success">Transaction confirmed.</div>
+      )}
       {error && <div>Error: {error.shortMessage || error.message}</div>}
     </>
   )

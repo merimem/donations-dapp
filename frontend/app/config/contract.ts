@@ -83,6 +83,50 @@ export const CONTRACT_ABI = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "projectId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum DonationPools.PoolType",
+        name: "poolType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amountRequired",
+        type: "uint256",
+      },
+    ],
+    name: "ProjectCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "projectId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum DonationPools.ProjectStatus",
+        name: "status",
+        type: "uint8",
+      },
+    ],
+    name: "ProjectStatusChanged",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "VERA_REWARD_RATE",
     outputs: [
@@ -98,6 +142,47 @@ export const CONTRACT_ABI = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "_projectId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum DonationPools.ProjectStatus",
+        name: "_status",
+        type: "uint8",
+      },
+    ],
+    name: "changeProjectStatus",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_projectId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum DonationPools.PoolType",
+        name: "_poolType",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "_amountRequired",
+        type: "uint256",
+      },
+    ],
+    name: "createProject",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "enum DonationPools.PoolType",
         name: "_pool",
         type: "uint8",
@@ -106,6 +191,41 @@ export const CONTRACT_ABI = [
     name: "donate",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAllProjects",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+      {
+        components: [
+          {
+            internalType: "enum DonationPools.PoolType",
+            name: "poolType",
+            type: "uint8",
+          },
+          {
+            internalType: "uint256",
+            name: "amountRequired",
+            type: "uint256",
+          },
+          {
+            internalType: "enum DonationPools.ProjectStatus",
+            name: "status",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct DonationPools.Project[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -135,9 +255,9 @@ export const CONTRACT_ABI = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_index",
-        type: "uint256",
+        internalType: "enum DonationPools.PoolType",
+        name: "_pool",
+        type: "uint8",
       },
     ],
     name: "getPoolBalances",
@@ -146,6 +266,42 @@ export const CONTRACT_ABI = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_projectId",
+        type: "uint256",
+      },
+    ],
+    name: "getProject",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "enum DonationPools.PoolType",
+            name: "poolType",
+            type: "uint8",
+          },
+          {
+            internalType: "uint256",
+            name: "amountRequired",
+            type: "uint256",
+          },
+          {
+            internalType: "enum DonationPools.ProjectStatus",
+            name: "status",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct DonationPools.Project",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -178,6 +334,54 @@ export const CONTRACT_ABI = [
         internalType: "uint256",
         name: "balance",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "projectIds",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "projects",
+    outputs: [
+      {
+        internalType: "enum DonationPools.PoolType",
+        name: "poolType",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "amountRequired",
+        type: "uint256",
+      },
+      {
+        internalType: "enum DonationPools.ProjectStatus",
+        name: "status",
+        type: "uint8",
       },
     ],
     stateMutability: "view",

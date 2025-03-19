@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import {
   CreateProject,
+  Project,
   UpdateProject,
 } from "~/modules/projects/project.typedefs"
 
@@ -14,6 +15,14 @@ export const getProjectById = async (id: number) => {
   return await db.projectList.findUnique({
     where: {
       id,
+    },
+  })
+}
+
+export const getProjectByprojectIdDB = async (id: Project["projectId"]) => {
+  return await db.projectList.findFirst({
+    where: {
+      projectId: id,
     },
   })
 }
