@@ -46,8 +46,14 @@ contract DonationPools is Ownable {
         uint256 votedProposalId;
     }
 
+    struct Association {
+        string name;
+        bool isApproved;
+    }
+
     mapping(address => Donator) donators;
     mapping(PoolType => Pool) public pools;
+    mapping(address => Association) public associations;
     mapping(uint256 => Project) public projects;
 
     uint256 public constant VERA_REWARD_RATE = 1000; // Example: 1 ETH = 1000 VERA
@@ -57,6 +63,9 @@ contract DonationPools is Ownable {
     event DonationReceived(address indexed donor, PoolType pool, uint256 amount);
     event ProjectCreated(uint256 projectId, PoolType poolType, uint256 amountRequired);
     event ProjectStatusChanged(uint256 projectId, ProjectStatus status);
+    event AssociationRegistered(address indexed associationAddress, string name);
+    event AssociationApproved(address indexed associationAddress);
+    event AssociationRejected(address indexed associationAddress);
     
 
     error DonationMustBeGreaterThanZero();
@@ -150,5 +159,33 @@ contract DonationPools is Ownable {
         projects[_projectId].status = _status;
         emit ProjectStatusChanged(_projectId, _status);
     }
+
+
+    function registerAssociation(string memory _name, address _wallet) external validAddress(_wallet) {
+        require(bytes(_name).length > 0, "Name is required");
+        require(bytes(associations[_wallet].name).length == 0, "Association already exists");
+
+        associations[_wallet] = Association({
+            name: _name,
+            isApproved: false
+        });
+        emit AssociationRegistered(_wallet, _name);
+    }
+
+    function approveAssociation(address _wallet) external onlyOwner {
+        require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
+        require(!associations[_wallet].isApproved, "Already approved");
+
+        associations[_wallet].isApproved = true;
+        emit AssociationApproved(_wallet);
+    }
+
+    function rejectAssociation(address _wallet) external onlyOwner {
+        require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
+        delete associations[_wallet];
+        emit AssociationRejected(_wallet);
+    }
+
+
 
 }

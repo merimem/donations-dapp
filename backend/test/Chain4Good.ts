@@ -219,4 +219,57 @@ describe("DonationPools", function () {
       ).to.be.revertedWith("Amount must be greater than zero")
     })
   })
+
+  describe("associations", function () {
+    it("Should register an association successfully", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+
+      const registeredAssociation = await donationPools.associations(
+        addr1.getAddress()
+      )
+      expect(registeredAssociation.name).to.equal("Red Cross")
+      expect(registeredAssociation.isApproved).to.be.false
+    })
+
+    it("Should approve an association successfully", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await donationPools.approveAssociation(addr1.getAddress())
+
+      const approvedAssociation = await donationPools.associations(
+        addr1.getAddress()
+      )
+      expect(approvedAssociation.isApproved).to.be.true
+    })
+
+    it("Should reject an association successfully", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await donationPools.rejectAssociation(addr1.getAddress())
+
+      const rejectedAssociation = await donationPools.associations(
+        addr1.getAddress()
+      )
+      expect(rejectedAssociation.name).to.equal("")
+      expect(rejectedAssociation.isApproved).to.be.false
+      expect(rejectedAssociation).to.deep.equal(["", false])
+    })
+
+    it("Should not allow duplicate association registration", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await expect(
+        donationPools.registerAssociation("Red", addr1.getAddress())
+      ).to.be.revertedWith("Association already exists")
+    })
+
+    it("Should revert if approving a non-existent association", async function () {
+      await expect(
+        donationPools.approveAssociation(addr1.getAddress())
+      ).to.be.revertedWith("Association does not exist")
+    })
+
+    it("Should revert if rejecting a non-existent association", async function () {
+      await expect(
+        donationPools.rejectAssociation(addr1.getAddress())
+      ).to.be.revertedWith("Association does not exist")
+    })
+  })
 })
