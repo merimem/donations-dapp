@@ -4,6 +4,7 @@ import { Link, useLoaderData, useParams } from "@remix-run/react"
 import { formatEther } from "viem"
 import { useReadContract } from "wagmi"
 import Loading from "~/components/layout/Loading"
+import Timeline from "~/components/layout/Timeline/Timeline"
 import Tooltip from "~/components/layout/Tooltip"
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
 import { getProjectByprojectId } from "~/modules/projects/project.server"
@@ -90,16 +91,14 @@ export default function ProjectComponent() {
                   </span>
                 ) : null}
               </div>
-              <div className="stat-desc">
-                <div className="inline-grid *:[grid-area:1/1]">
-                  <div className="status status-error animate-ping"></div>
-                  <div className="status status-error"></div>
-                </div>{" "}
-                {ProjectStatus[projectContract.status]}
-              </div>
             </div>
           </div>
         )}
+        <Timeline
+          itemsProps={[
+            { timelineStart: "hello", isSelected: true, timelineEnd: "coco" },
+          ]}
+        />
       </div>
     </div>
   )

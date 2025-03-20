@@ -219,4 +219,95 @@ describe("DonationPools", function () {
       ).to.be.revertedWith("Amount must be greater than zero")
     })
   })
+
+  describe("associations", function () {
+    it("Should register an association successfully", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+
+      const registeredAssociation = await donationPools.associations(
+        addr1.getAddress()
+      )
+      expect(registeredAssociation.name).to.equal("Red Cross")
+      expect(registeredAssociation.isApproved).to.be.false
+    })
+
+    it("Should approve an association successfully", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await donationPools.approveAssociation(addr1.getAddress())
+
+      const approvedAssociation = await donationPools.associations(
+        addr1.getAddress()
+      )
+      expect(approvedAssociation.isApproved).to.be.true
+    })
+    it("should reject an existing association and remove it from the list", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await expect(
+        donationPools.connect(owner).rejectAssociation(addr1.getAddress())
+      )
+        .to.emit(donationPools, "AssociationRejected")
+        .withArgs(addr1.getAddress())
+
+      // Vérifier que l'association est bien supprimée
+      const association = await donationPools.associations(addr1.getAddress())
+      expect(association.name).to.equal("")
+
+      // Vérifier que l'adresse est bien retirée du tableau
+      const wallets = await donationPools.associationWallets
+      expect(wallets).to.not.include(addr1.getAddress())
+    })
+
+    it("Should not allow duplicate association registration", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await expect(
+        donationPools.registerAssociation("Red", addr1.getAddress())
+      ).to.be.revertedWith("Association already exists")
+    })
+
+    it("Should revert if approving a non-existent association", async function () {
+      await expect(
+        donationPools.approveAssociation(addr1.getAddress())
+      ).to.be.revertedWith("Association does not exist")
+    })
+
+    it("Should revert if rejecting a non-existent association", async function () {
+      await expect(
+        donationPools.rejectAssociation(addr1.getAddress())
+      ).to.be.revertedWith("Association does not exist")
+    })
+
+    it("Should get association details successfully", async function () {
+      await donationPools.registerAssociation(
+        "Red Cross",
+        await addr1.getAddress()
+      )
+
+      const association = await donationPools.getAssociation(
+        await addr1.getAddress()
+      )
+
+      expect(association[0]).to.equal("Red Cross") // Name
+      expect(association[1]).to.be.false // Approval status
+    })
+
+    it("Should revert when fetching a non-existent association", async function () {
+      await expect(
+        donationPools.getAssociation(await addr1.getAddress())
+      ).to.be.revertedWith("Association does not exist")
+    })
+
+    it("Should return all registered associations with addresses ", async function () {
+      await donationPools.registerAssociation("Red Cross", addr1.getAddress())
+      await donationPools.registerAssociation("UNICEF", addr2.getAddress())
+
+      const [allAssociations, allAddresses] =
+        await donationPools.getAllAssociations()
+      await expect(allAssociations.length).to.equal(2)
+      await expect(allAssociations[0].name).to.equal("Red Cross")
+      await expect(allAddresses[0]).to.equal(await addr1.getAddress())
+
+      expect(allAssociations[1].name).to.equal("UNICEF")
+      expect(allAddresses[1]).to.equal(await addr2.getAddress())
+    })
+  })
 })

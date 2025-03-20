@@ -12,6 +12,8 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
+      blockGasLimit: 100000000429720, // Set block gas limit to match the coverage environment
+      allowUnlimitedContractSize: true,
     },
   },
 }

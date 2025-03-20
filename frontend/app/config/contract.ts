@@ -17,6 +17,16 @@ export const CONTRACT_ABI = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "DonatorAlreadyRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotValidAddress",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -37,6 +47,64 @@ export const CONTRACT_ABI = [
     ],
     name: "OwnableUnauthorizedAccount",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "associationAddress",
+        type: "address",
+      },
+    ],
+    name: "AssociationApproved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "associationAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "AssociationRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "associationAddress",
+        type: "address",
+      },
+    ],
+    name: "AssociationRejected",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "donatorAddress",
+        type: "address",
+      },
+    ],
+    name: "DonaterRegistered",
+    type: "event",
   },
   {
     anonymous: false,
@@ -142,6 +210,62 @@ export const CONTRACT_ABI = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_wallet",
+        type: "address",
+      },
+    ],
+    name: "approveAssociation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "associationWallets",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "associations",
+    outputs: [
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "bool",
+        name: "isApproved",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_projectId",
         type: "uint256",
@@ -195,6 +319,36 @@ export const CONTRACT_ABI = [
   },
   {
     inputs: [],
+    name: "getAllAssociations",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "bool",
+            name: "isApproved",
+            type: "bool",
+          },
+        ],
+        internalType: "struct DonationPools.Association[]",
+        name: "",
+        type: "tuple[]",
+      },
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getAllProjects",
     outputs: [
       {
@@ -223,6 +377,30 @@ export const CONTRACT_ABI = [
         internalType: "struct DonationPools.Project[]",
         name: "",
         type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_association",
+        type: "address",
+      },
+    ],
+    name: "getAssociation",
+    outputs: [
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "bool",
+        name: "isApproved",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -385,6 +563,37 @@ export const CONTRACT_ABI = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "_wallet",
+        type: "address",
+      },
+    ],
+    name: "registerAssociation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_wallet",
+        type: "address",
+      },
+    ],
+    name: "rejectAssociation",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

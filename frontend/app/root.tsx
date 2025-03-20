@@ -11,6 +11,9 @@ import Footer from "./components/footer/Footer"
 import Navbar from "./components/navbar/Navbar"
 import "./tailwind.css"
 import { Providers } from "./utils/Providers"
+import { UserContext } from "./components/context/UserContext"
+import { useState } from "react"
+import { UserType } from "./modules/users/users.typedefs"
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -26,6 +29,8 @@ export const links: LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [userType, setUserType] = useState<UserType | null>(null)
+
   return (
     <html lang="en">
       <head>
@@ -36,11 +41,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="bg-base-300">
         <Providers>
-          <Navbar />
-          <div className="mx-6 mt-4">{children}</div>
-          <ScrollRestoration />
-          <Scripts />
-          <Footer />
+          <UserContext.Provider
+            value={{
+              userType,
+              setUserType,
+            }}
+          >
+            <Navbar />
+            <div className="mx-6 mt-4">{children}</div>
+            <ScrollRestoration />
+            <Scripts />
+            <Footer />
+          </UserContext.Provider>
         </Providers>
       </body>
     </html>

@@ -46,17 +46,27 @@ contract DonationPools is Ownable {
         uint256 votedProposalId;
     }
 
+    struct Association {
+        string name;
+        bool isApproved;
+    }
+
     mapping(address => Donator) donators;
     mapping(PoolType => Pool) public pools;
+    mapping(address => Association) public associations;
     mapping(uint256 => Project) public projects;
 
     uint256 public constant VERA_REWARD_RATE = 1000; // Example: 1 ETH = 1000 VERA
     uint256[] public projectIds;
+    address[] public associationWallets;
 
     event DonaterRegistered(address donatorAddress);
     event DonationReceived(address indexed donor, PoolType pool, uint256 amount);
     event ProjectCreated(uint256 projectId, PoolType poolType, uint256 amountRequired);
     event ProjectStatusChanged(uint256 projectId, ProjectStatus status);
+    event AssociationRegistered(address indexed associationAddress, string name);
+    event AssociationApproved(address indexed associationAddress);
+    event AssociationRejected(address indexed associationAddress);
     
 
     error DonationMustBeGreaterThanZero();
@@ -99,7 +109,7 @@ contract DonationPools is Ownable {
     // }
 
 
-
+//prevent associations from donate
     function donate(PoolType _pool) external payable validDonation {
 
         pools[_pool].balance += msg.value;
@@ -150,5 +160,61 @@ contract DonationPools is Ownable {
         projects[_projectId].status = _status;
         emit ProjectStatusChanged(_projectId, _status);
     }
+
+
+    function registerAssociation(string memory _name, address _wallet) external validAddress(_wallet) {
+        require(bytes(_name).length > 0, "Name is required");
+        require(bytes(associations[_wallet].name).length == 0, "Association already exists");
+
+        associations[_wallet] = Association({
+            name: _name,
+            isApproved: false
+        });
+         associationWallets.push(_wallet); 
+        emit AssociationRegistered(_wallet, _name);
+    }
+
+    function approveAssociation(address _wallet) external onlyOwner {
+        require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
+        require(!associations[_wallet].isApproved, "Already approved");
+
+        associations[_wallet].isApproved = true;
+        emit AssociationApproved(_wallet);
+    }
+
+    function rejectAssociation(address _wallet) external onlyOwner {
+        require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
+        bool exists = false;
+        for (uint i = 0; i < associationWallets.length; i++) {
+            if (associationWallets[i] == _wallet) {
+                exists = true;
+
+                associationWallets[i] = associationWallets[associationWallets.length - 1];
+                associationWallets.pop();
+                break;
+            }
+        }
+        require(exists, "Association wallet not found in list");
+        delete associations[_wallet];
+        emit AssociationRejected(_wallet);
+    }
+
+    function getAssociation(address _association) external view returns (string memory name, bool isApproved) {
+        require(bytes(associations[_association].name).length > 0, "Association does not exist");
+        return (associations[_association].name, associations[_association].isApproved);
+    }
+
+    function getAllAssociations() external view returns (Association[] memory, address[] memory) {
+        Association[] memory allAssociations = new Association[](associationWallets.length);
+       
+
+        for (uint256 i = 0; i < associationWallets.length; i++) {
+            allAssociations[i] = associations[associationWallets[i]];
+        }
+
+        return (allAssociations, associationWallets);
+    }
+
+
 
 }
