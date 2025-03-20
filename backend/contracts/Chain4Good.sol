@@ -58,6 +58,7 @@ contract DonationPools is Ownable {
 
     uint256 public constant VERA_REWARD_RATE = 1000; // Example: 1 ETH = 1000 VERA
     uint256[] public projectIds;
+    address[] public associationWallets;
 
     event DonaterRegistered(address donatorAddress);
     event DonationReceived(address indexed donor, PoolType pool, uint256 amount);
@@ -108,7 +109,7 @@ contract DonationPools is Ownable {
     // }
 
 
-
+//prevent associations from donate
     function donate(PoolType _pool) external payable validDonation {
 
         pools[_pool].balance += msg.value;
@@ -169,6 +170,7 @@ contract DonationPools is Ownable {
             name: _name,
             isApproved: false
         });
+         associationWallets.push(_wallet); 
         emit AssociationRegistered(_wallet, _name);
     }
 
@@ -182,8 +184,35 @@ contract DonationPools is Ownable {
 
     function rejectAssociation(address _wallet) external onlyOwner {
         require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
+        bool exists = false;
+        for (uint i = 0; i < associationWallets.length; i++) {
+            if (associationWallets[i] == _wallet) {
+                exists = true;
+
+                associationWallets[i] = associationWallets[associationWallets.length - 1];
+                associationWallets.pop();
+                break;
+            }
+        }
+        require(exists, "Association wallet not found in list");
         delete associations[_wallet];
         emit AssociationRejected(_wallet);
+    }
+
+    function getAssociation(address _association) external view returns (string memory name, bool isApproved) {
+        require(bytes(associations[_association].name).length > 0, "Association does not exist");
+        return (associations[_association].name, associations[_association].isApproved);
+    }
+
+    function getAllAssociations() external view returns (Association[] memory, address[] memory) {
+        Association[] memory allAssociations = new Association[](associationWallets.length);
+       
+
+        for (uint256 i = 0; i < associationWallets.length; i++) {
+            allAssociations[i] = associations[associationWallets[i]];
+        }
+
+        return (allAssociations, associationWallets);
     }
 
 

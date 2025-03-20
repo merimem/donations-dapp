@@ -1,11 +1,13 @@
 import { MetaFunction } from "@remix-run/node"
 import { useNavigate } from "@remix-run/react"
-import { useEffect, useMemo, useState } from "react"
+import { useContext, useEffect, useMemo, useState } from "react"
 import { formatEther } from "viem"
 import { useAccount } from "wagmi"
+import { UserContext } from "~/components/context/UserContext"
 import EthereumIcon from "~/components/layout/icons/EthereumIcon"
 import Loading from "~/components/layout/Loading"
 import Title from "~/components/layout/title"
+import AssociationsRequest from "~/components/profile/AssociationsRequest"
 import TableDonations from "~/components/profile/TableDonations"
 import {
   CONTRACT_ABI,
@@ -13,6 +15,7 @@ import {
   CONTRACT_VERA_ABI,
   CONTRACT_VERA_ADDRESS,
 } from "~/config/contract"
+import { UserType } from "~/modules/users/users.typedefs"
 import { publicClient } from "~/utils/client"
 
 export const meta: MetaFunction = () => {
@@ -23,16 +26,18 @@ export const meta: MetaFunction = () => {
 }
 
 export default function Profile() {
-  const { address, isConnected, status } = useAccount()
+  const { address, isConnected, status, isConnecting } = useAccount()
   const [loading, setLoading] = useState(true)
   const [contributions, setContributions] = useState<bigint[]>([])
   const [veraBalance, setVeraBalance] = useState<bigint | null>(null)
-
+  const contextUser = useContext(UserContext)
   const navigate = useNavigate()
 
-  if (status === "disconnected") {
-    navigate("/")
-  }
+  useEffect(() => {
+    if (status === "disconnected") {
+      navigate("/")
+    }
+  }, [status])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +69,7 @@ export default function Profile() {
       }
     }
 
-    fetchData()
+    if (address) fetchData()
   }, [address])
 
   const total = useMemo(
@@ -78,62 +83,65 @@ export default function Profile() {
   )
 
   return (
-    <div className="flex flex-col justify-center p-4">
+    <div className="flex flex-col justify-center p-4 max-w-[70%] bg-gray-700 rounded mx-auto my-0">
       <Title type="h1" className="p-4">
         My Profile
       </Title>
       {loading ? (
         <Loading />
       ) : (
-        <>
-          <div className="stats shadow m-4">
-            <div className="stat">
-              <div className="stat-title text-xs max-w-64">{address}</div>
-              <div className="stat-figure text-secondary">
-                <div className="avatar online">
-                  <div className="w-16 rounded-full">
-                    <img src="/avatar.png" />
+        isConnected && (
+          <>
+            <div className="stats shadow m-4 bg-base-200">
+              <div className="stat">
+                <div className="stat-title text-xs max-w-64">{address}</div>
+                <div className="stat-figure text-secondary">
+                  <div className="avatar online">
+                    <div className="w-16 rounded-full">
+                      <img src="/avatar.png" />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="stat">
-              <div className="stat-figure text-primary">
-                <EthereumIcon className="w-12 h-12" isPink={true} />
-              </div>
-              <div className="stat-title">Total Donations</div>
+              <div className="stat">
+                <div className="stat-figure text-primary">
+                  <EthereumIcon className="w-12 h-12" isPink={true} />
+                </div>
+                <div className="stat-title">Total Donations</div>
 
-              <div className="stat-value text-primary flex gap-4">
-                {total} ETH
+                <div className="stat-value text-primary flex gap-4">
+                  {total} ETH
+                </div>
+                {/* <div className="stat-desc">21% more than last month</div> */}
               </div>
-              {/* <div className="stat-desc">21% more than last month</div> */}
-            </div>
 
-            <div className="stat">
-              <div className="stat-figure text-secondary">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  className="inline-block h-8 w-8 stroke-current"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  ></path>
-                </svg>
+              <div className="stat">
+                <div className="stat-figure text-secondary">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="inline-block h-8 w-8 stroke-current"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    ></path>
+                  </svg>
+                </div>
+                <div className="stat-title">VERA balance</div>
+                <div className="stat-value text-secondary">
+                  {veraBalance ? formatEther(veraBalance) : null}
+                </div>
+                <div className="stat-desc"></div>
               </div>
-              <div className="stat-title">VERA balance</div>
-              <div className="stat-value text-secondary">
-                {veraBalance ? formatEther(veraBalance) : null}
-              </div>
-              <div className="stat-desc"></div>
             </div>
-          </div>
-          <TableDonations contributions={contributions} />
-        </>
+            <TableDonations contributions={contributions} />
+            {contextUser.userType === UserType.Owner && <AssociationsRequest />}
+          </>
+        )
       )}
     </div>
   )
