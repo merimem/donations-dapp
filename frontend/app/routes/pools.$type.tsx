@@ -1,4 +1,8 @@
-import { ArrowLeftIcon } from "@heroicons/react/24/solid"
+import {
+  ArrowLeftIcon,
+  CalendarIcon,
+  ClockIcon,
+} from "@heroicons/react/24/solid"
 import {
   Link,
   MetaFunction,
@@ -10,6 +14,8 @@ import { formatEther } from "viem"
 import { useReadContract } from "wagmi"
 import Donate from "~/components/layout/Donate"
 import Hero from "~/components/layout/Hero"
+import EthereumIcon from "~/components/layout/icons/EthereumIcon"
+import Stats from "~/components/layout/Stat"
 import Tooltip from "~/components/layout/Tooltip"
 import PoolProjects from "~/components/pools/PoolProjects"
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
@@ -67,23 +73,38 @@ export default function Connect() {
           </Link>
         </Tooltip>
       </div>
-      <Hero
-        backroungImageUrl={`/${type}.jpg`}
-        title={type || "Pool"}
-        //@ts-ignore
-        description={type && poolDescriptions[value]}
-        className="hover:scale-105 cursor-pointer"
-        direction="vertical"
-        button={<Donate poolNumber={value} />}
-      >
-        <p>
-          Pool contains
-          <span className="text-secondary">
-            {pool ? ` ${formatEther(pool)} Eth` : ` 0 Eth`}
-          </span>
-        </p>
-      </Hero>
+      <div className="border bg-base-100 rounded p-4">
+        <article>
+          <div className="mb-8">
+            <img src={`/${type}.jpg`} className="h-64 w-full" />
+            <h1
+              className="text-3xl font-bold mb-4 glitch"
+              data-text={type || "Pool"}
+            >
+              {type || "Pool"}
+            </h1>
+            <div className="flex justify-between pr-16">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                {type &&
+                  //@ts-ignore
+                  poolDescriptions[value]}
+              </div>
 
+              <Stats
+                title="Pool balance"
+                value={
+                  <>
+                    {pool ? ` ${formatEther(pool)}` : ` 0`}
+                    <EthereumIcon isLight />
+                  </>
+                }
+              />
+            </div>
+
+            <Donate poolNumber={value} />
+          </div>
+        </article>
+      </div>
       {type && <PoolProjects poolType={type} projects={projects} />}
     </div>
   )

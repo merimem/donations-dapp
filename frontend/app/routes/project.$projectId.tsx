@@ -1,14 +1,16 @@
-import { ArrowLeftIcon } from "@heroicons/react/24/solid"
 import { LoaderFunction } from "@remix-run/node"
 import { Link, useLoaderData, useParams } from "@remix-run/react"
+import { useContext } from "react"
 import { formatEther } from "viem"
 import { useReadContract } from "wagmi"
+import { UserContext } from "~/components/context/UserContext"
 import Loading from "~/components/layout/Loading"
 import Timeline from "~/components/layout/Timeline/Timeline"
-import Tooltip from "~/components/layout/Tooltip"
+import VoteForm from "~/components/project/voting/VoteForProject"
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
 import { getProjectByprojectId } from "~/modules/projects/project.server"
 import { Project, ProjectStatus } from "~/modules/projects/project.typedefs"
+import { UserType } from "~/modules/users/users.typedefs"
 
 type LoaderData = {
   project: Project
@@ -28,6 +30,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 export default function ProjectComponent() {
   const { project: projectDB } = useLoaderData<LoaderData>() as LoaderData
   const params = useParams()
+  const contextUser = useContext(UserContext)
+
   const { projectId } = params
 
   if (!projectId) return null
@@ -43,13 +47,29 @@ export default function ProjectComponent() {
     args: [BigInt(projectId)],
   })
 
-  //   const finalProjects = projects
-  //     ? projects[1].map((project, index) => ({
-  //         ...project,
-  //         projectId: projects[0][index],
-  //       }))
-  //     : []
-  console.log("finalProjects", projectContract)
+  const timelineProps = () => {
+    const keys = Object.keys(ProjectStatus).filter((key) => isNaN(Number(key)))
+    if (projectContract) {
+      return keys.map((key, index) => {
+        const currentStatusIndex = projectContract?.status
+        const keyIndex = ProjectStatus[key as keyof typeof ProjectStatus]
+
+        return {
+          timelineStart: key,
+          isSelected:
+            currentStatusIndex === ProjectStatus.Completed ||
+            keyIndex <= currentStatusIndex,
+          index,
+          totalItems: keys.length,
+        }
+      })
+    }
+    return []
+  }
+
+  const displayVoteForm = projectContract?.status === 0
+  //&& contextUser.userType === UserType.Donator
+  console.log(projectContract?.status === 0, contextUser.userType)
 
   return (
     <div>
@@ -94,11 +114,8 @@ export default function ProjectComponent() {
             </div>
           </div>
         )}
-        <Timeline
-          itemsProps={[
-            { timelineStart: "hello", isSelected: true, timelineEnd: "coco" },
-          ]}
-        />
+        {projectContract && <Timeline itemsProps={timelineProps()} />}
+        {displayVoteForm && <VoteForm projectId={projectId} />}
       </div>
     </div>
   )

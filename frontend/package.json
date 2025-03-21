@@ -37,6 +37,7 @@
     "rollup-plugin-node-polyfills": "^0.2.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "three": "^0.174.0",
     "viem": "^2.23.11",
     "vite-plugin-node-polyfills": "^0.23.0",
     "wagmi": "^2.14.13"

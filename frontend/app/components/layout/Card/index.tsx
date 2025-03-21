@@ -22,7 +22,7 @@ const index = ({
 }: CardProps) => {
   return (
     <div
-      className={clsx(className, "card bg-base-100 shadow-sm")}
+      className={clsx(className, "card-hover card bg-base-100 shadow-sm")}
       onClick={onClick}
     >
       {imageUrl && (
@@ -30,7 +30,7 @@ const index = ({
           <img src={imageUrl} alt="Album" className={clsx(imageClassName)} />
         </figure>
       )}
-      <div className="card-body">
+      <div className="card-body dark:bg-gradient-to-t dark:from-black/80 dark:to-transparent">
         <h2 className="card-title font-bold capitalize text-xl">{title}</h2>
         <div className="italic">{description}</div>
         {textBtn && (

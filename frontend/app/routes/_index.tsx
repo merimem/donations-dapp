@@ -1,8 +1,6 @@
 import type { MetaFunction } from "@remix-run/node"
-import { Link } from "@remix-run/react"
-import Hero from "~/components/layout/Hero"
+import Globe from "~/components/layout/Globe"
 import PoolsCards from "~/components/pools/PoolsCards"
-import flower from "../../public/hands.jpg"
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,7 +12,16 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   return (
     <nav className="flex flex-col gap-4 mby-4">
-      <Hero
+      {/* <div className="relative w-[400px] h-[200px]"> */}
+      <Globe />
+      <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl">
+        <p className="font-title relative z-2 mx-auto text-[clamp(2rem,6vw,4.5rem)] leading-none font-black">
+          Strengthening global resilience through the power of donations
+        </p>
+      </div>
+      {/* </div> * */}
+
+      {/* <Hero
         title="Empower Your Giving with Transparency and Control"
         description="Join a new era of humanitarian support where your donations are secure, traceable, and impactful. Track every step of your contribution, vote on fund releases, and ensure your money drives real change — all powered by blockchain technology."
         backroungImageUrl={flower}
@@ -24,7 +31,7 @@ export default function Index() {
             Discover projects
           </Link>
         }
-      />
+      />*/}
       <PoolsCards />
     </nav>
   )
