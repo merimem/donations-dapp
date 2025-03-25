@@ -39,6 +39,10 @@ const InscriptionForm = ({ address }: InscriptionFormProps) => {
 
   return (
     <>
+      <p className="max-w-xl">
+        Welcome to Chain4Good! To access our platform and receive funding,
+        please submit a request to get started.
+      </p>
       <h1 className="mb-4">Register your wallet: </h1>
       <Form onSubmit={handleSubmit}>
         <fieldset className="fieldset max-w-72 w-xs glass to-primary border border-base-300 p-4 rounded-box center">

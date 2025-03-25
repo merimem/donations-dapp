@@ -6,18 +6,12 @@ interface ProfileProps {
 const WelcomeAssociation = (association: ProfileProps) => {
   return (
     <div>
-      <p>
-        Bienvenue {association.name}, votre association est déjà enregistrée.
-      </p>
+      <p>Welcome {association.name}, votre association est déjà enregistrée.</p>
       {association.isApproved ? (
-        <p>
-          Votre association a été approuvé. Vous pouvez postuler pour des
-          projets
-        </p>
+        <p>Your registration request has been approved. </p>
       ) : (
         <p>
-          Votre association n'a pas été encore approuvée ou bien a été rejetée.
-          Vous ne pouvez pas postuler aux projets.
+          Your registration is currently under review or may have been rejected.
         </p>
       )}
     </div>

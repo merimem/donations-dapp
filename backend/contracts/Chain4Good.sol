@@ -270,4 +270,6 @@ contract Chain4Good is Ownable {
         return (allAssociations, associationWallets);
     }
 
+
+
 }

@@ -8,7 +8,11 @@ import {
 } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { keccak256, parseEther, toHex } from "viem"
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
+import {
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi"
 import Loading from "~/components/layout/Loading"
 import config from "~/config/contract"
 import { PoolType } from "~/modules/pools/pools.typedefs"
@@ -64,13 +68,24 @@ export default function Create() {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [targetAmount, setTargetAmount] = useState("")
-
+  const [selectedAssociation, setSelectedAssociation] = useState("")
   const fetcher = useFetcher<ActionData>()
   const navigate = useNavigate()
   const params = useParams<{ poolType: string }>()
   const { poolType } = params
   console.log("poolType", poolType)
   const poolValue = PoolType[poolType!]
+  console.log("selectedAssociation", selectedAssociation)
+  const {
+    data: associationsData,
+    isLoading,
+    isError,
+  } = useReadContract({
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
+    functionName: "getAllAssociations",
+  })
+  const [associations, addresses] = associationsData || [[], []]
 
   useEffect(() => {
     if (!poolType || !(poolType in PoolType)) {
@@ -89,6 +104,12 @@ export default function Create() {
     useWaitForTransactionReceipt({
       hash,
     })
+
+  const handleSelectAssociation = async (
+    e: React.FormEvent<HTMLSelectElement>
+  ) => {
+    setSelectedAssociation(e.target.value)
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -166,6 +187,21 @@ export default function Create() {
                 onChange={(e) => setTargetAmount(e.target.value)}
                 required
               />
+              <label className="fieldset-label" htmlFor="targetAmount">
+                Send to
+              </label>
+              <select
+                className="select"
+                onChange={handleSelectAssociation}
+                value={selectedAssociation}
+                required
+              >
+                {addresses.map((addr) => (
+                  <option value={addr} key={addr}>
+                    {addr}
+                  </option>
+                ))}
+              </select>
             </fieldset>
             <button className="btn btn-primary mt-4" disabled={isPending}>
               {isPending ? <Loading /> : "Add project"}

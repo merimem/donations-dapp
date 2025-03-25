@@ -7,15 +7,14 @@ interface VoteFormProps {
 }
 
 const VoteForm = ({ projectId }: VoteFormProps) => {
-  const [vote, setVote] = useState<boolean>(false)
-  const { data: hash, error: errorContract, writeContract } = useWriteContract()
+  const [vote, setVote] = useState<boolean | null>(null)
+  const { data: hash, error: errorVote, writeContract } = useWriteContract()
   const { isLoading, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   })
 
   const handleVote = async () => {
     if (vote === null) {
-      //toast.error("Please select a vote option.");
       return
     }
 
@@ -26,29 +25,29 @@ const VoteForm = ({ projectId }: VoteFormProps) => {
         functionName: "voteOnProject",
         args: [BigInt(projectId), vote],
       })
-
-      //   toast.success(
-      //     `Successfully voted to ${vote ? "approve" : "reject"} the project.`
-      //   )
     } catch (error) {
       console.error(error)
-      //toast.error("Failed to submit vote.")
     } finally {
-      //setIsLoading(false)
     }
   }
 
   return (
-    <div className="alert  alert-info alert-outline  m-4 max-w-md">
-      <h2 className="text-xl font-bold mb-4">Unlock the target amount:</h2>
+    <div className="rounded-lg border bg-card p-4 mx-auto mt-4 w-[400px]">
+      <p className="text-xs text-gray-200">
+        The voting has started for this project.
+      </p>
+      <h2 className="text-xl font-bold mb-4">
+        Unlock the target amount?{" "}
+        <span className="pl-4 text-warning">{vote ? "Yes" : "No"}</span>
+      </h2>
 
       <div className="flex space-x-4 mb-4">
-        <input
-          type="checkbox"
-          checked={vote}
-          className="toggle border-error bg-error checked:bg-success checked:text-green-800 checked:border-success "
-          onChange={() => setVote(!vote)}
-        />
+        <button className="btn btn-success" onClick={() => setVote(true)}>
+          Yes
+        </button>
+        <button className="btn btn-error" onClick={() => setVote(false)}>
+          No
+        </button>
       </div>
 
       <button
@@ -58,6 +57,13 @@ const VoteForm = ({ projectId }: VoteFormProps) => {
       >
         {isLoading ? "Submitting..." : "Submit Vote"}
       </button>
+
+      {isConfirmed && (
+        <div className="text-accent">
+          Successfully voted to {vote ? "approve" : "reject"} the project.
+        </div>
+      )}
+      {errorVote && <div className="text-error">Failed to submit vote. !</div>}
     </div>
   )
 }

@@ -1,24 +1,13 @@
-import React, { useContext } from "react"
-import {
-  useContractRead,
-  useReadContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi"
-import config, { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
-import Loading from "../layout/Loading"
+import { useContext } from "react"
+import { useReadContract } from "wagmi"
+import config from "~/config/contract"
 import { UserContext } from "../context/UserContext"
-import {
-  CheckCircleIcon,
-  TrashIcon,
-  VariableIcon,
-} from "@heroicons/react/24/solid"
+import Loading from "../layout/Loading"
 import ActionsButton from "./ActionsButton"
 
 const AssociationsRequest = () => {
   const contextUser = useContext(UserContext)
 
-  console.log("contextUser", contextUser)
   const {
     data: associationsData,
     isLoading,
@@ -29,17 +18,6 @@ const AssociationsRequest = () => {
     functionName: "getAllAssociations",
   })
   const [associations, addresses] = associationsData || [[], []]
-  // const { write: approveAssociation } = useWriteContract({
-  //     address: CONTRACT_ADDRESS,
-  //     abi: CONTRACT_ABI,
-  //     functionName: 'approveAssociation',
-  // });
-
-  // const { write: rejectAssociation } = useWriteContract({
-  //     address: CONTRACT_ADDRESS,
-  //     abi: CONTRACT_ABI,
-  //     functionName: 'rejectAssociation',
-  // });
 
   return (
     <div className="my-4">
