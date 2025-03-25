@@ -10,7 +10,7 @@ import { useEffect, useState } from "react"
 import { keccak256, parseEther, toHex } from "viem"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
 import Loading from "~/components/layout/Loading"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 import { PoolType } from "~/modules/pools/pools.typedefs"
 import { createProject } from "~/modules/projects/project.server"
 
@@ -105,8 +105,8 @@ export default function Create() {
 
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "createProject",
         args: [projectId, Number(poolValue)!, parseEther(targetAmount)],
       })

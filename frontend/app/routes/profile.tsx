@@ -9,12 +9,7 @@ import Loading from "~/components/layout/Loading"
 import Title from "~/components/layout/title"
 import AssociationsRequest from "~/components/profile/AssociationsRequest"
 import TableDonations from "~/components/profile/TableDonations"
-import {
-  CONTRACT_ABI,
-  CONTRACT_ADDRESS,
-  CONTRACT_VERA_ABI,
-  CONTRACT_VERA_ADDRESS,
-} from "~/config/contract"
+import config from "~/config/contract"
 import { UserType } from "~/modules/users/users.typedefs"
 import { publicClient } from "~/utils/client"
 
@@ -47,16 +42,16 @@ export default function Profile() {
           [1, 2, 3, 4, 5].map(
             async (i) =>
               await publicClient.readContract({
-                address: CONTRACT_ADDRESS,
-                abi: CONTRACT_ABI,
+                address: config.Chain4Good.address,
+                abi: config.Chain4Good.abi,
                 functionName: "getContribution",
                 args: [i, address!],
               })
           )
         )
         const veraBalance = await publicClient.readContract({
-          address: CONTRACT_VERA_ADDRESS,
-          abi: CONTRACT_VERA_ABI,
+          address: config.VeraToken.address,
+          abi: config.VeraToken.abi,
           functionName: "balanceOf",
           args: [address!],
         })

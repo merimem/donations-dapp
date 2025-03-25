@@ -1,9 +1,8 @@
 import { Form } from "@remix-run/react"
 import React, { useState } from "react"
-import { writeContract } from "viem/actions"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
 import Loading from "~/components/layout/Loading"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 
 interface InscriptionFormProps {
   address: `0x${string}`
@@ -28,8 +27,8 @@ const InscriptionForm = ({ address }: InscriptionFormProps) => {
 
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "registerAssociation",
         args: [name, address],
       })

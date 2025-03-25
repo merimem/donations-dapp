@@ -1,7 +1,6 @@
 import { CheckCircleIcon, TrashIcon } from "@heroicons/react/24/solid"
-import React from "react"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 import Loading from "../layout/Loading"
 interface ActionsButtonProps {
   address: `0x${string}`
@@ -21,8 +20,8 @@ const ActionsButton = ({ address }: ActionsButtonProps) => {
   const handleReject = async () => {
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "rejectAssociation",
         args: [address],
       })
@@ -34,8 +33,8 @@ const ActionsButton = ({ address }: ActionsButtonProps) => {
   const handleApprove = async () => {
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "approveAssociation",
         args: [address],
       })

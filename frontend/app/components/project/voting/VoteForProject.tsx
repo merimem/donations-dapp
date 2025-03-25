@@ -1,7 +1,6 @@
-import clsx from "clsx"
-import React, { useState } from "react"
+import { useState } from "react"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 
 interface VoteFormProps {
   projectId: string
@@ -22,10 +21,10 @@ const VoteForm = ({ projectId }: VoteFormProps) => {
 
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "voteOnProject",
-        args: [projectId, vote],
+        args: [BigInt(projectId), vote],
       })
 
       //   toast.success(

@@ -5,7 +5,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config, { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
 import Loading from "../layout/Loading"
 import { UserContext } from "../context/UserContext"
 import {
@@ -24,13 +24,11 @@ const AssociationsRequest = () => {
     isLoading,
     isError,
   } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
     functionName: "getAllAssociations",
   })
   const [associations, addresses] = associationsData || [[], []]
-  console.log("associations", associations)
-  console.log("addresses", addresses)
   // const { write: approveAssociation } = useWriteContract({
   //     address: CONTRACT_ADDRESS,
   //     abi: CONTRACT_ABI,

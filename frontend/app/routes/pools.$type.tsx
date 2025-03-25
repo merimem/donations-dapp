@@ -1,8 +1,4 @@
-import {
-  ArrowLeftIcon,
-  CalendarIcon,
-  ClockIcon,
-} from "@heroicons/react/24/solid"
+import { ArrowLeftIcon } from "@heroicons/react/24/solid"
 import {
   Link,
   MetaFunction,
@@ -13,12 +9,11 @@ import {
 import { formatEther } from "viem"
 import { useReadContract } from "wagmi"
 import Donate from "~/components/layout/Donate"
-import Hero from "~/components/layout/Hero"
 import EthereumIcon from "~/components/layout/icons/EthereumIcon"
 import Stats from "~/components/layout/Stat"
 import Tooltip from "~/components/layout/Tooltip"
 import PoolProjects from "~/components/pools/PoolProjects"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 import { poolDescriptions } from "~/modules/pools/pools.constants"
 import { PoolType } from "~/modules/pools/pools.typedefs"
 import { getAllProjects } from "~/modules/projects/project.server"
@@ -51,8 +46,8 @@ export default function Connect() {
   }
   const value: number = PoolType[type as keyof typeof PoolType] ?? 0
   const { data: pool, refetch } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
     functionName: "getPoolBalances",
     args: [value],
   })

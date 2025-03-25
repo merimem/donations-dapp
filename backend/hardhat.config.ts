@@ -6,14 +6,23 @@ import "@nomicfoundation/hardhat-ethers"
 import "@nomicfoundation/hardhat-chai-matchers"
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.28",
+  solidity: {
+    version: "0.8.28",
+    settings: {
+      optimizer: {
+        enabled: true, //Enables the solidity optimizer.
+        runs: 200, //Specifies the number of runs the optimizer should perform.
+      },
+    },
+  },
   defaultNetwork: "localhost",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
-      blockGasLimit: 100000000429720, // Set block gas limit to match the coverage environment
       allowUnlimitedContractSize: true,
+      gas: 30000000, // Match block gas limit
+      blockGasLimit: 30000000, // Ensure Hardhat runs with this limit
     },
   },
 }

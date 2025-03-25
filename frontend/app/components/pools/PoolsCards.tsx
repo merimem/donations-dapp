@@ -1,11 +1,8 @@
-import React from "react"
-import { useAccount, useReadContract } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
-import { PoolType } from "~/modules/pools/pools.typedefs"
-import Card from "../layout/Card"
 import { useNavigate } from "@remix-run/react"
+import { useAccount } from "wagmi"
+import { PoolType } from "~/modules/pools/pools.typedefs"
 import { ROUTES } from "~/utils/routes/routes.constants"
-import { Project } from "~/modules/projects/project.typedefs"
+import Card from "../layout/Card"
 
 interface PoolsCardsParams {}
 

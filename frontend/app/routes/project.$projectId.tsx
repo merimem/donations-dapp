@@ -7,10 +7,9 @@ import { UserContext } from "~/components/context/UserContext"
 import Loading from "~/components/layout/Loading"
 import Timeline from "~/components/layout/Timeline/Timeline"
 import VoteForm from "~/components/project/voting/VoteForProject"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 import { getProjectByprojectId } from "~/modules/projects/project.server"
 import { Project, ProjectStatus } from "~/modules/projects/project.typedefs"
-import { UserType } from "~/modules/users/users.typedefs"
 
 type LoaderData = {
   project: Project
@@ -41,8 +40,8 @@ export default function ProjectComponent() {
     isLoading,
     isError,
   } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
     functionName: "getProject",
     args: [BigInt(projectId)],
   })

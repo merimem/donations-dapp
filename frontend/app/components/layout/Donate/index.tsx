@@ -5,7 +5,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 import EthereumIcon from "../icons/EthereumIcon"
 
 interface DonateProps {
@@ -21,8 +21,8 @@ const Donate = ({ poolNumber }: DonateProps) => {
   const handleDonate = async () => {
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "donate",
         value: parseEther(amount),
         // account: address,
@@ -72,7 +72,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
                   className={`flex flex-col items-center justify-between rounded-md border-2 p-4 cursor-pointer col-span-3 ${
                     amount === "custom" ? "border-primary" : "border-muted"
                   }`}
-                  onClick={() => setAmount(value)}
+                  //onClick={() => setAmount(value)}
                 >
                   <div className="w-full flex items-center">
                     <span className="mr-2">
@@ -97,7 +97,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
               onClick={handleDonate}
               disabled={isPending}
             >
-              Donate {amount === "custom" ? customAmount || 0 : amount}{" "}
+              Donate {amount === "custom" ? customAmount || 0 : amount}
               <EthereumIcon isLight />
             </button>
           </div>
@@ -142,7 +142,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
       {isConfirmed && (
         <div className="text-success">Transaction confirmed.</div>
       )}
-      {error && <div>Error: {error.shortMessage || error.message}</div>}
+      {error && <div className="text-error">Error {error.message}</div>}
     </div>
   )
 }

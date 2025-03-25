@@ -1,14 +1,13 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { MetaFunction, useNavigate, useParams } from "@remix-run/react"
-import { useContext, useEffect, useState } from "react"
+import { MetaFunction, useParams } from "@remix-run/react"
+import { useContext, useEffect } from "react"
 import { useAccount, useReadContract } from "wagmi"
 import WelcomeAdmin from "~/components/connect/admin/WelcomeAdmin"
 import ConnexionAssociation from "~/components/connect/associations/ConnexionAssociation"
 import WelcomeDonator from "~/components/connect/donator/WelcomeDonator"
 import { UserContext } from "~/components/context/UserContext"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 import { UserType } from "~/modules/users/users.typedefs"
-import { publicClient } from "~/utils/client"
 
 export const meta: MetaFunction = () => {
   return [
@@ -24,8 +23,8 @@ export default function Connect() {
   const { userType } = useParams()
 
   const { data: contractOwner } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
     functionName: "owner",
   })
 
