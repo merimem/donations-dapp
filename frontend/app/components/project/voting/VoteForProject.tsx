@@ -38,7 +38,9 @@ const VoteForm = ({ projectId }: VoteFormProps) => {
       </p>
       <h2 className="text-xl font-bold mb-4">
         Unlock the target amount?{" "}
-        <span className="pl-4 text-warning">{vote ? "Yes" : "No"}</span>
+        <span className="pl-4 text-warning">
+          {vote ? "Yes" : vote == false ? "No" : null}
+        </span>
       </h2>
 
       <div className="flex space-x-4 mb-4">

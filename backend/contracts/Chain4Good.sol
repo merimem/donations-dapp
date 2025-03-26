@@ -16,7 +16,7 @@ contract Chain4Good is Ownable {
     }
 
     enum UserType { Donator, Association }
-    enum ProjectStatus { Pending, Approved, Funded, Rejected, Completed }
+    enum ProjectStatus { Pending, Approved, Rejected, Funded, Completed }
 
     struct Pool {
         uint256 balance;
@@ -24,12 +24,13 @@ contract Chain4Good is Ownable {
     }
     struct Project {
         PoolType poolType;
-        uint256 amountRequired;
         ProjectStatus status;
+        address receiver;
+        uint256 amountRequired;
         uint256 yesVotes;
         uint256 noVotes;
         uint256 totalDonators;
-        address receiver;
+        uint256 startBlock;
     }
 
     struct DonatorVote{
@@ -39,7 +40,6 @@ contract Chain4Good is Ownable {
 
     struct Donator {
         bool isRegistered;
-        //projectId =>
         mapping(uint256 => DonatorVote) votes;
     }
 
@@ -52,9 +52,11 @@ contract Chain4Good is Ownable {
     mapping(PoolType => Pool) public pools;
     mapping(address => Association) public associations;
     mapping(uint256 => Project) public projects;
+    mapping(uint256 => uint256) public onHoldFunds;
 
-    uint256 public constant VERA_REWARD_RATE = 1000; 
-    uint256 public constant QUORUM_PERCENTAGE = 30; // Par exemple 30% des donateurs du pool doivent voter
+    uint48 public votingDelay;
+    uint256 public tokenRewardRate; 
+    uint256 public quorum; 
 
     uint256[] public projectIds;
     address[] public associationWallets;
@@ -92,22 +94,19 @@ contract Chain4Good is Ownable {
    
 
     //Functions
-    constructor(address _veraTokenAddress) Ownable(msg.sender)  {
+    constructor(address _veraTokenAddress, uint48 _votingDelay, uint256 _tokenRewardRate, uint256 _quorum) Ownable(msg.sender)  {
         require(_veraTokenAddress != address(0), "Invalid VERA token address");
+        require(_votingDelay > 0, "Voting delay must be greater than zero");
+        require(_tokenRewardRate > 0, "Token reward rate must be greater than zero");
+        require(_quorum > 0 && _quorum <= 100, "Quorum must be between 1 and 100");
+
         veraToken = VeraToken(_veraTokenAddress);
-        
+        votingDelay = _votingDelay;
+        tokenRewardRate= _tokenRewardRate;
+        quorum= _quorum;
     }
 
-    // function registerDonator(address _address)
-    //     external
-    //     onlyNotRegistered(_address)
-    //     validAddress(_address)
-    // {
-    //     donators[_address].isRegistered = true;
-    //     emit DonaterRegistered(_address);
-    // }
-
-
+   
 //prevent associations from donate
     function donate(PoolType _pool) external payable validDonation {
 
@@ -115,7 +114,8 @@ contract Chain4Good is Ownable {
         pools[_pool].contributions[msg.sender] += msg.value;
         donators[msg.sender].isRegistered = true;
 
-        uint256 veraReward = msg.value * VERA_REWARD_RATE;
+        uint256 veraReward = msg.value * tokenRewardRate;
+   
         veraToken.mint(msg.sender, veraReward);   
         emit DonationReceived(msg.sender, _pool, msg.value);
     }
@@ -131,30 +131,33 @@ contract Chain4Good is Ownable {
 //PROJECTS
     function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired, address _receiver) external  {
         require(_amountRequired > 0, "Amount must be greater than zero");
+        require(projects[_projectId].startBlock == 0, "Project already exists");
+        require(_receiver != address(0), "Invalid receiver address");
 
         projects[_projectId].poolType = _poolType;
         projects[_projectId].amountRequired = _amountRequired;
         projects[_projectId].status = ProjectStatus.Pending;
         projects[_projectId].receiver = _receiver;
+        projects[_projectId].startBlock = block.number;
         projectIds.push(_projectId); 
 
         emit ProjectCreated(_projectId, _poolType, _amountRequired);
     }
 
     function voteOnProject(uint256 _projectId, bool _vote) external {
-        require(donators[msg.sender].isRegistered, "Only registered donators can vote");
+        require(donators[msg.sender].isRegistered, "Only registered donors can vote");
+        require(projects[_projectId].startBlock != 0, "Project does not exist");
         require(projects[_projectId].status == ProjectStatus.Pending, "Project not pending");
+        //
         uint256 voterBalance = veraToken.balanceOf(msg.sender);
         require(voterBalance > 0, "Insufficient VERA token balance");
-       
-        DonatorVote storage donorVote = donators[msg.sender].votes[_projectId];
-        require(!donorVote.hasVoted, "Donator has already voted");
 
-        // Enregistrement du vote
+        DonatorVote storage donorVote = donators[msg.sender].votes[_projectId];
+        require(!donorVote.hasVoted, "Donor has already voted");
+
         donorVote.hasVoted = true;
         donorVote.voteValue = _vote;
 
-        // Mise à jour du décompte des votes
         if (_vote) {
             projects[_projectId].yesVotes+= voterBalance;
         } else {
@@ -164,31 +167,15 @@ contract Chain4Good is Ownable {
         emit ProjectVoted(_projectId, msg.sender, _vote);
     }
 
-    
-
-    // function _finalizeVoting(uint256 _projectId) internal {
-    //     uint256 totalDonators = _getTotalDonators(projects[_projectId].poolType);
-    //     uint256 totalVotes = projects[_projectId].yesVotes + projects[_projectId].noVotes;
-
-    //     if (totalVotes * 100 / totalDonators >= QUORUM_PERCENTAGE) {
-    //         if (projects[_projectId].yesVotes > projects[_projectId].noVotes) {
-    //             projects[_projectId].status = ProjectStatus.Approved;
-    //         } else {
-    //             projects[_projectId].status = ProjectStatus.Rejected;
-    //         }
-    //         emit ProjectStatusChanged(_projectId, projects[_projectId].status);
-    //     }
-    // }
-
-    
-
      function finallizeVotes(uint256 _projectId) external onlyOwner {
         require(projects[_projectId].amountRequired != 0, "Project does not exist");
-
+        require(block.number >= projects[_projectId].startBlock + votingDelay, "Voting period not yet ended");
+        
         Project storage project = projects[_projectId];
 
         if (project.yesVotes > project.noVotes) {
             project.status = ProjectStatus.Approved;
+            onHoldFunds[_projectId] = project.amountRequired;
         } else {
             project.status = ProjectStatus.Rejected;
         }
@@ -269,7 +256,4 @@ contract Chain4Good is Ownable {
         }
         return (allAssociations, associationWallets);
     }
-
-
-
 }

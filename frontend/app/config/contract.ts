@@ -1,6 +1,6 @@
 const config = {
   "VeraToken": {
-    "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+    "address": "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
     "abi": [
       {
         "inputs": [
@@ -429,7 +429,7 @@ const config = {
     ]
   },
   "Chain4Good": {
-    "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+    "address": "0xE3011A37A904aB90C8881a99BD1F6E21401f1522",
     "abi": [
       {
         "inputs": [
@@ -437,6 +437,21 @@ const config = {
             "internalType": "address",
             "name": "_veraTokenAddress",
             "type": "address"
+          },
+          {
+            "internalType": "uint48",
+            "name": "_votingDelay",
+            "type": "uint48"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_tokenRewardRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_quorum",
+            "type": "uint256"
           }
         ],
         "stateMutability": "nonpayable",
@@ -651,32 +666,6 @@ const config = {
         "type": "event"
       },
       {
-        "inputs": [],
-        "name": "QUORUM_PERCENTAGE",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "VERA_REWARD_RATE",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [
           {
             "internalType": "address",
@@ -766,6 +755,11 @@ const config = {
             "internalType": "uint256",
             "name": "_amountRequired",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_receiver",
+            "type": "address"
           }
         ],
         "name": "createProject",
@@ -846,14 +840,19 @@ const config = {
                 "type": "uint8"
               },
               {
-                "internalType": "uint256",
-                "name": "amountRequired",
-                "type": "uint256"
-              },
-              {
                 "internalType": "enum Chain4Good.ProjectStatus",
                 "name": "status",
                 "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountRequired",
+                "type": "uint256"
               },
               {
                 "internalType": "uint256",
@@ -868,6 +867,11 @@ const config = {
               {
                 "internalType": "uint256",
                 "name": "totalDonators",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "startBlock",
                 "type": "uint256"
               }
             ],
@@ -964,14 +968,19 @@ const config = {
                 "type": "uint8"
               },
               {
-                "internalType": "uint256",
-                "name": "amountRequired",
-                "type": "uint256"
-              },
-              {
                 "internalType": "enum Chain4Good.ProjectStatus",
                 "name": "status",
                 "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountRequired",
+                "type": "uint256"
               },
               {
                 "internalType": "uint256",
@@ -986,6 +995,11 @@ const config = {
               {
                 "internalType": "uint256",
                 "name": "totalDonators",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "startBlock",
                 "type": "uint256"
               }
             ],
@@ -1064,14 +1078,19 @@ const config = {
             "type": "uint8"
           },
           {
-            "internalType": "uint256",
-            "name": "amountRequired",
-            "type": "uint256"
-          },
-          {
             "internalType": "enum Chain4Good.ProjectStatus",
             "name": "status",
             "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountRequired",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -1086,6 +1105,24 @@ const config = {
           {
             "internalType": "uint256",
             "name": "totalDonators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startBlock",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "quorum",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
             "type": "uint256"
           }
         ],
@@ -1131,6 +1168,19 @@ const config = {
         "type": "function"
       },
       {
+        "inputs": [],
+        "name": "tokenRewardRate",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [
           {
             "internalType": "address",
@@ -1172,6 +1222,19 @@ const config = {
         "name": "voteOnProject",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "votingDelay",
+        "outputs": [
+          {
+            "internalType": "uint48",
+            "name": "",
+            "type": "uint48"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       }
     ]

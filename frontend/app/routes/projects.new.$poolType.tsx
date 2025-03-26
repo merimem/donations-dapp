@@ -68,7 +68,8 @@ export default function Create() {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [targetAmount, setTargetAmount] = useState("")
-  const [selectedAssociation, setSelectedAssociation] = useState("")
+  const [selectedAssociation, setSelectedAssociation] =
+    useState<`0x${string}`>("0x")
   const fetcher = useFetcher<ActionData>()
   const navigate = useNavigate()
   const params = useParams<{ poolType: string }>()
@@ -86,6 +87,10 @@ export default function Create() {
     functionName: "getAllAssociations",
   })
   const [associations, addresses] = associationsData || [[], []]
+
+  useEffect(() => {
+    setSelectedAssociation(addresses[0])
+  }, [addresses])
 
   useEffect(() => {
     if (!poolType || !(poolType in PoolType)) {
@@ -129,7 +134,12 @@ export default function Create() {
         address: config.Chain4Good.address,
         abi: config.Chain4Good.abi,
         functionName: "createProject",
-        args: [projectId, Number(poolValue)!, parseEther(targetAmount)],
+        args: [
+          projectId,
+          Number(poolValue)!,
+          parseEther(targetAmount),
+          selectedAssociation,
+        ],
       })
 
       fetcher.submit(formData, {

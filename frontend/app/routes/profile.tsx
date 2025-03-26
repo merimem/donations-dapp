@@ -128,7 +128,7 @@ export default function Profile() {
                 </div>
                 <div className="stat-title">VERA balance</div>
                 <div className="stat-value text-secondary">
-                  {veraBalance ? formatEther(veraBalance) : null}
+                  {veraBalance?.toString()}
                 </div>
                 <div className="stat-desc"></div>
               </div>
