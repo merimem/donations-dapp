@@ -5,13 +5,15 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
+import EthereumIcon from "../icons/EthereumIcon"
 
 interface DonateProps {
   poolNumber: number
 }
 const Donate = ({ poolNumber }: DonateProps) => {
   const [amount, setAmount] = useState("")
+  const [customAmount, setCustomAmount] = useState("")
   const { address } = useAccount()
 
   const { data: hash, error, isPending, writeContract } = useWriteContract()
@@ -19,8 +21,8 @@ const Donate = ({ poolNumber }: DonateProps) => {
   const handleDonate = async () => {
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "donate",
         value: parseEther(amount),
         // account: address,
@@ -37,8 +39,71 @@ const Donate = ({ poolNumber }: DonateProps) => {
     })
 
   return (
-    <>
-      <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm w-full max-w-md mx-auto mt-4">
+      <div className="flex flex-col space-y-1.5 p-6">
+        <h3 className="font-semibold tracking-tight text-2xl">
+          Make a Donation
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Support our mission with a donation.
+        </p>
+      </div>
+      <div className="p-6 pt-0">
+        <form>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Donation Amount</label>
+              <div className="grid grid-cols-3 gap-4" role="radiogroup">
+                {["1", "2", "3"].map((value) => (
+                  <label
+                    key={value}
+                    className={`flex flex-col items-center justify-between rounded-md border-2 p-4 cursor-pointer `}
+                    // amount === value ? "border-primary" : "border-muted"
+                    //}`}
+                    onClick={() => setAmount(value)}
+                  >
+                    <EthereumIcon className="w-16 h-16" isLight />
+                    <span className="text-xl font-bold">Eth {value}</span>
+                  </label>
+                ))}
+
+                {/* Custom Amount Input */}
+                <label
+                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 cursor-pointer col-span-3 ${
+                    amount === "custom" ? "border-primary" : "border-muted"
+                  }`}
+                  //onClick={() => setAmount(value)}
+                >
+                  <div className="w-full flex items-center">
+                    <span className="mr-2">
+                      <EthereumIcon isLight />
+                    </span>
+                    <input
+                      className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      placeholder="Other amount"
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                    />
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6">
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+              type="submit"
+              onClick={handleDonate}
+              disabled={isPending}
+            >
+              Donate {amount === "custom" ? customAmount || 0 : amount}
+              <EthereumIcon isLight />
+            </button>
+          </div>
+        </form>
+      </div>
+      {/* <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
         <div className="join">
           <input
             type="number"
@@ -55,7 +120,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
             Donate
           </button>
         </div>
-      </fieldset>
+      </fieldset> */}
       {/* <input
         type="number"
         placeholder="Amount in ETH..."
@@ -77,8 +142,8 @@ const Donate = ({ poolNumber }: DonateProps) => {
       {isConfirmed && (
         <div className="text-success">Transaction confirmed.</div>
       )}
-      {error && <div>Error: {error.shortMessage || error.message}</div>}
-    </>
+      {error && <div className="text-error">Error {error.message}</div>}
+    </div>
   )
 }
 

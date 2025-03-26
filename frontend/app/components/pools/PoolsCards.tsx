@@ -1,11 +1,8 @@
-import React from "react"
-import { useAccount, useReadContract } from "wagmi"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
-import { PoolType } from "~/modules/pools/pools.typedefs"
-import Card from "../layout/Card"
 import { useNavigate } from "@remix-run/react"
+import { useAccount } from "wagmi"
+import { PoolType } from "~/modules/pools/pools.typedefs"
 import { ROUTES } from "~/utils/routes/routes.constants"
-import { Project } from "~/modules/projects/project.typedefs"
+import Card from "../layout/Card"
 
 interface PoolsCardsParams {}
 
@@ -16,9 +13,14 @@ const PoolsCards = ({}: PoolsCardsParams) => {
     <>
       {isConnected ? (
         <>
-          <h1 className="font-bold flex justify-center text-xl mb-4 text-primary">
-            Our Active pools
+          <h1 className="font-title relative z-2 mx-auto [transform:translate3d(0,0,0)] text-[clamp(2rem,6vw,4.5rem)] leading-none font-black will-change-auto motion-reduce:tracking-normal! max-[1279px]:tracking-normal!">
+            {/* //font-bold flex justify-center text-xl mb-4 text-primary "> */}
+            Active pools
           </h1>
+          <p className="text-base-content/70 font-title py-4 font-light md:text-2xl">
+            Our active pools hold dedicated funds to proactively prepare for and
+            respond to disasters.
+          </p>
           <div className="grid grid-cols-3 gap-4">
             {Object.keys(PoolType)
               .filter((key) => isNaN(Number(key)))
@@ -32,7 +34,7 @@ const PoolsCards = ({}: PoolsCardsParams) => {
                         <span className="text-success">25$ </span> recolted
                       </p>
                     }
-                    className="hover:scale-105 cursor-pointer"
+                    className="!rounded-none border border-[#00ff8c33]  hover:border-[#00ff8c99] hover:-translate-y-1 hover:shadow-[0_10px_20px_#00ff8c33] transition-all duration-300"
                     onClick={() => navigate(`${ROUTES.POOLS}/${key}`)}
                     key={key}
                   />

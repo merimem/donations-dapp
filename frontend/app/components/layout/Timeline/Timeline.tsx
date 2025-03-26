@@ -6,6 +6,8 @@ interface TimelineItemProps {
   timelineMiddle?: ReactNode
   timelineEnd?: ReactNode
   isSelected?: boolean
+  index: number
+  totalItems: number
 }
 
 const TimelineItem = ({
@@ -13,9 +15,12 @@ const TimelineItem = ({
   timelineMiddle,
   timelineEnd,
   isSelected,
+  index,
+  totalItems,
 }: TimelineItemProps) => {
   return (
     <li>
+      {<hr className={clsx(isSelected && index > 0 && "bg-primary")} />}
       {timelineStart && <div className="timeline-start">{timelineStart}</div>}
       <div className="timeline-middle">
         {isSelected ? (
@@ -47,7 +52,9 @@ const TimelineItem = ({
         )}
       </div>
       <div className="timeline-end timeline-box">{timelineEnd}</div>
-      <hr className={clsx(isSelected && "bg-primary")} />
+      <hr
+        className={clsx(isSelected && index < totalItems - 1 && "bg-primary")}
+      />
     </li>
   )
 }
@@ -57,9 +64,9 @@ interface TimelineProps {
 }
 const Timeline = ({ itemsProps }: TimelineProps) => {
   return (
-    <ul className="timeline">
+    <ul className="timeline p-4">
       {itemsProps.map((items) => (
-        <TimelineItem {...items} />
+        <TimelineItem {...items} key={items.index} />
       ))}
     </ul>
   )

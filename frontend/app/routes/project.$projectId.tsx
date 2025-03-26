@@ -1,14 +1,17 @@
-import { ArrowLeftIcon } from "@heroicons/react/24/solid"
 import { LoaderFunction } from "@remix-run/node"
 import { Link, useLoaderData, useParams } from "@remix-run/react"
+import { useContext } from "react"
 import { formatEther } from "viem"
 import { useReadContract } from "wagmi"
+import { UserContext } from "~/components/context/UserContext"
 import Loading from "~/components/layout/Loading"
 import Timeline from "~/components/layout/Timeline/Timeline"
-import Tooltip from "~/components/layout/Tooltip"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import FinnalizeVote from "~/components/project/voting/FinnalizeVote"
+import VoteForm from "~/components/project/voting/VoteForProject"
+import config from "~/config/contract"
 import { getProjectByprojectId } from "~/modules/projects/project.server"
 import { Project, ProjectStatus } from "~/modules/projects/project.typedefs"
+import { UserType } from "~/modules/users/users.typedefs"
 
 type LoaderData = {
   project: Project
@@ -28,6 +31,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 export default function ProjectComponent() {
   const { project: projectDB } = useLoaderData<LoaderData>() as LoaderData
   const params = useParams()
+  const contextUser = useContext(UserContext)
+
   const { projectId } = params
 
   if (!projectId) return null
@@ -37,20 +42,56 @@ export default function ProjectComponent() {
     isLoading,
     isError,
   } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
     functionName: "getProject",
     args: [BigInt(projectId)],
   })
+  console.log("projectContract", projectContract)
+  const timelineProps = () => {
+    const keys = Object.keys(ProjectStatus).filter((key) => isNaN(Number(key)))
 
-  //   const finalProjects = projects
-  //     ? projects[1].map((project, index) => ({
-  //         ...project,
-  //         projectId: projects[0][index],
-  //       }))
-  //     : []
-  console.log("finalProjects", projectContract)
+    if (projectContract) {
+      // Combine Approved and Rejected statuses into one item
+      const filteredKeys = keys.filter((key) => {
+        const keyIndex = ProjectStatus[key as keyof typeof ProjectStatus]
+        // Filter out Approved and Rejected if already added as "Approve or Reject"
+        return !(
+          (projectContract?.status === ProjectStatus.Approved &&
+            keyIndex === ProjectStatus.Rejected) ||
+          (projectContract?.status === ProjectStatus.Rejected &&
+            keyIndex === ProjectStatus.Approved)
+        )
+      })
 
+      return filteredKeys.map((key, index) => {
+        const currentStatusIndex = projectContract?.status
+        const keyIndex = ProjectStatus[key as keyof typeof ProjectStatus]
+
+        // Replace Approved and Rejected with "Approve or Reject" if needed
+        if (
+          keyIndex === ProjectStatus.Approved ||
+          keyIndex === ProjectStatus.Rejected
+        ) {
+          key = "Approve or Reject"
+        }
+
+        return {
+          timelineStart: key,
+          isSelected:
+            currentStatusIndex === ProjectStatus.Completed ||
+            keyIndex <= currentStatusIndex,
+          index,
+          totalItems: filteredKeys.length,
+        }
+      })
+    }
+
+    return []
+  }
+
+  const displayVoteForm = projectContract?.status === 0
+  console.log("timelineProps", timelineProps())
   return (
     <div>
       <div className="flex gap-4 mb-4">
@@ -94,11 +135,11 @@ export default function ProjectComponent() {
             </div>
           </div>
         )}
-        <Timeline
-          itemsProps={[
-            { timelineStart: "hello", isSelected: true, timelineEnd: "coco" },
-          ]}
-        />
+        {projectContract && <Timeline itemsProps={timelineProps()} />}
+        {displayVoteForm && <VoteForm projectId={projectId} />}
+        {contextUser.userType === UserType.Owner && (
+          <FinnalizeVote projectId={projectId} />
+        )}
       </div>
     </div>
   )

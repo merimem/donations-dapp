@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
-import { publicClient } from "~/utils/client"
-import InscriptionForm from "./InscriptionForm"
-import WelcomeAssociation from "./WelcomeAssociation"
 import { useReadContract } from "wagmi"
 import Loading from "~/components/layout/Loading"
+import config from "~/config/contract"
+import InscriptionForm from "./InscriptionForm"
+import WelcomeAssociation from "./WelcomeAssociation"
 
 interface ConnexionAssociationParams {
   address: `0x${string}`
@@ -18,8 +16,8 @@ const ConnexionAssociation = ({ address }: ConnexionAssociationParams) => {
     error,
     refetch,
   } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
     functionName: "getAssociation",
     args: [address!],
   })

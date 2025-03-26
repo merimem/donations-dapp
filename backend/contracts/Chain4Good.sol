@@ -1,22 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
+import "./VeraToken.sol";
 
-contract VERA is ERC20, Ownable {
-    constructor() ERC20("VERA Token", "VERA") Ownable(msg.sender) {
-        _mint(msg.sender, 1000);
-    }
-
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
-    }
-}
-
-contract DonationPools is Ownable {
-    VERA public veraToken;
+contract Chain4Good is Ownable {
+    VeraToken public veraToken;
 
     enum PoolType { 
         NaturalDisasters, 
@@ -28,7 +16,7 @@ contract DonationPools is Ownable {
     }
 
     enum UserType { Donator, Association }
-    enum ProjectStatus { Pending, Approved, Funded, Rejected, Completed }
+    enum ProjectStatus { Pending, Approved, Rejected, Funded, Completed }
 
     struct Pool {
         uint256 balance;
@@ -36,14 +24,23 @@ contract DonationPools is Ownable {
     }
     struct Project {
         PoolType poolType;
-        uint256 amountRequired;
         ProjectStatus status;
+        address receiver;
+        uint256 amountRequired;
+        uint256 yesVotes;
+        uint256 noVotes;
+        uint256 totalDonators;
+        uint256 startBlock;
+    }
+
+    struct DonatorVote{
+        bool hasVoted;
+        bool voteValue;
     }
 
     struct Donator {
         bool isRegistered;
-        bool hasVoted;
-        uint256 votedProposalId;
+        mapping(uint256 => DonatorVote) votes;
     }
 
     struct Association {
@@ -55,8 +52,12 @@ contract DonationPools is Ownable {
     mapping(PoolType => Pool) public pools;
     mapping(address => Association) public associations;
     mapping(uint256 => Project) public projects;
+    mapping(uint256 => uint256) public onHoldFunds;
 
-    uint256 public constant VERA_REWARD_RATE = 1000; // Example: 1 ETH = 1000 VERA
+    uint48 public votingDelay;
+    uint256 public tokenRewardRate; 
+    uint256 public quorum; 
+
     uint256[] public projectIds;
     address[] public associationWallets;
 
@@ -67,7 +68,7 @@ contract DonationPools is Ownable {
     event AssociationRegistered(address indexed associationAddress, string name);
     event AssociationApproved(address indexed associationAddress);
     event AssociationRejected(address indexed associationAddress);
-    
+    event ProjectVoted(uint256 projectId, address donor, bool vote);
 
     error DonationMustBeGreaterThanZero();
     error DonatorAlreadyRegistered();
@@ -93,29 +94,28 @@ contract DonationPools is Ownable {
    
 
     //Functions
-    constructor(address _veraTokenAddress) Ownable(msg.sender)  {
+    constructor(address _veraTokenAddress, uint48 _votingDelay, uint256 _tokenRewardRate, uint256 _quorum) Ownable(msg.sender)  {
         require(_veraTokenAddress != address(0), "Invalid VERA token address");
-        veraToken = VERA(_veraTokenAddress);
-        
+        require(_votingDelay > 0, "Voting delay must be greater than zero");
+        require(_tokenRewardRate > 0, "Token reward rate must be greater than zero");
+        require(_quorum > 0 && _quorum <= 100, "Quorum must be between 1 and 100");
+
+        veraToken = VeraToken(_veraTokenAddress);
+        votingDelay = _votingDelay;
+        tokenRewardRate= _tokenRewardRate;
+        quorum= _quorum;
     }
 
-    // function registerDonator(address _address)
-    //     external
-    //     onlyNotRegistered(_address)
-    //     validAddress(_address)
-    // {
-    //     donators[_address].isRegistered = true;
-    //     emit DonaterRegistered(_address);
-    // }
-
-
+   
 //prevent associations from donate
     function donate(PoolType _pool) external payable validDonation {
 
         pools[_pool].balance += msg.value;
         pools[_pool].contributions[msg.sender] += msg.value;
+        donators[msg.sender].isRegistered = true;
 
-        uint256 veraReward = msg.value * VERA_REWARD_RATE;
+        uint256 veraReward = msg.value * tokenRewardRate;
+   
         veraToken.mint(msg.sender, veraReward);   
         emit DonationReceived(msg.sender, _pool, msg.value);
     }
@@ -128,17 +128,59 @@ contract DonationPools is Ownable {
         return pools[_pool].balance;
     }
 
-//add who creates the project
-    function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired) external  {
+//PROJECTS
+    function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired, address _receiver) external  {
         require(_amountRequired > 0, "Amount must be greater than zero");
+        require(projects[_projectId].startBlock == 0, "Project already exists");
+        require(_receiver != address(0), "Invalid receiver address");
 
-        projects[_projectId] = Project({
-            poolType: _poolType,
-            amountRequired: _amountRequired,
-            status: ProjectStatus.Pending
-        });
+        projects[_projectId].poolType = _poolType;
+        projects[_projectId].amountRequired = _amountRequired;
+        projects[_projectId].status = ProjectStatus.Pending;
+        projects[_projectId].receiver = _receiver;
+        projects[_projectId].startBlock = block.number;
         projectIds.push(_projectId); 
+
         emit ProjectCreated(_projectId, _poolType, _amountRequired);
+    }
+
+    function voteOnProject(uint256 _projectId, bool _vote) external {
+        require(donators[msg.sender].isRegistered, "Only registered donors can vote");
+        require(projects[_projectId].startBlock != 0, "Project does not exist");
+        require(projects[_projectId].status == ProjectStatus.Pending, "Project not pending");
+        //
+        uint256 voterBalance = veraToken.balanceOf(msg.sender);
+        require(voterBalance > 0, "Insufficient VERA token balance");
+
+        DonatorVote storage donorVote = donators[msg.sender].votes[_projectId];
+        require(!donorVote.hasVoted, "Donor has already voted");
+
+        donorVote.hasVoted = true;
+        donorVote.voteValue = _vote;
+
+        if (_vote) {
+            projects[_projectId].yesVotes+= voterBalance;
+        } else {
+            projects[_projectId].noVotes+= voterBalance;
+        }
+
+        emit ProjectVoted(_projectId, msg.sender, _vote);
+    }
+
+     function finallizeVotes(uint256 _projectId) external onlyOwner {
+        require(projects[_projectId].amountRequired != 0, "Project does not exist");
+        require(block.number >= projects[_projectId].startBlock + votingDelay, "Voting period not yet ended");
+        
+        Project storage project = projects[_projectId];
+
+        if (project.yesVotes > project.noVotes) {
+            project.status = ProjectStatus.Approved;
+            onHoldFunds[_projectId] = project.amountRequired;
+        } else {
+            project.status = ProjectStatus.Rejected;
+        }
+
+        emit ProjectStatusChanged(_projectId, project.status);
     }
 
    function getProject(uint256 _projectId) external view returns (Project memory) {
@@ -155,13 +197,14 @@ contract DonationPools is Ownable {
     return (projectIds, projectList);
 }
 
-//require project exists
+    //require project exists
     function changeProjectStatus(uint256 _projectId, ProjectStatus _status) external onlyOwner {      
         projects[_projectId].status = _status;
         emit ProjectStatusChanged(_projectId, _status);
     }
 
 
+    // Associations
     function registerAssociation(string memory _name, address _wallet) external validAddress(_wallet) {
         require(bytes(_name).length > 0, "Name is required");
         require(bytes(associations[_wallet].name).length == 0, "Association already exists");
@@ -211,10 +254,6 @@ contract DonationPools is Ownable {
         for (uint256 i = 0; i < associationWallets.length; i++) {
             allAssociations[i] = associations[associationWallets[i]];
         }
-
         return (allAssociations, associationWallets);
     }
-
-
-
 }

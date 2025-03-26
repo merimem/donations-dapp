@@ -23,6 +23,8 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.2.0"
+    "@faker-js/faker": "^9.6.0",
+    "@openzeppelin/contracts": "^5.2.0",
+    "fs-extra": "^11.3.0"
   }
 }

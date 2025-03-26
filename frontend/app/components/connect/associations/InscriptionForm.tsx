@@ -1,9 +1,8 @@
 import { Form } from "@remix-run/react"
 import React, { useState } from "react"
-import { writeContract } from "viem/actions"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
 import Loading from "~/components/layout/Loading"
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "~/config/contract"
+import config from "~/config/contract"
 
 interface InscriptionFormProps {
   address: `0x${string}`
@@ -28,8 +27,8 @@ const InscriptionForm = ({ address }: InscriptionFormProps) => {
 
     try {
       await writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
         functionName: "registerAssociation",
         args: [name, address],
       })
@@ -40,6 +39,10 @@ const InscriptionForm = ({ address }: InscriptionFormProps) => {
 
   return (
     <>
+      <p className="max-w-xl">
+        Welcome to Chain4Good! To access our platform and receive funding,
+        please submit a request to get started.
+      </p>
       <h1 className="mb-4">Register your wallet: </h1>
       <Form onSubmit={handleSubmit}>
         <fieldset className="fieldset max-w-72 w-xs glass to-primary border border-base-300 p-4 rounded-box center">

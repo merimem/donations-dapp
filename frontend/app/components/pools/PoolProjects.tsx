@@ -13,13 +13,11 @@ const PoolProjects = ({ poolType, projects }: PoolProjectsProps) => {
   const poolProjects = projects.filter(
     (project) => project.poolType === poolType
   )
+
   return (
-    <div className="p-6 my-4">
-      <Title type="h2">
-        {" "}
-        {poolProjects.length} project{poolProjects.length > 1 ? "s" : null} in
-        this pool
-      </Title>
+    <div className="p-6 my-4 border">
+      <div className="badge badge-warning badge-xl">Projects</div>
+      <p className="mt-4 text-base-content/70">Projects related to this pool</p>
       <div className="grid gap-4 grid-cols-4 my-4">
         {poolProjects.map((project) => {
           return (

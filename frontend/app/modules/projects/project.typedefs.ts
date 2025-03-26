@@ -34,8 +34,8 @@ export type UpdateProject = {
 
 export enum ProjectStatus {
   Pending = 0,
-  Approved = "approved",
-  Rejected = "rejected",
-  Funded = "funded",
-  Completed = "completed",
+  Approved,
+  Rejected,
+  Funded,
+  Completed,
 }
