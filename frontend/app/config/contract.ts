@@ -1,6 +1,6 @@
 const config = {
   "VeraToken": {
-    "address": "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
+    "address": "0x5f246ADDCF057E0f778CD422e20e413be70f9a0c",
     "abi": [
       {
         "inputs": [
@@ -335,6 +335,24 @@ const config = {
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "sendTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "symbol",
         "outputs": [
@@ -429,7 +447,7 @@ const config = {
     ]
   },
   "Chain4Good": {
-    "address": "0xE3011A37A904aB90C8881a99BD1F6E21401f1522",
+    "address": "0xaD82Ecf79e232B0391C5479C7f632aA1EA701Ed1",
     "abi": [
       {
         "inputs": [
@@ -783,6 +801,25 @@ const config = {
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "donators",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "isRegistered",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "uint256",
             "name": "_projectId",
             "type": "uint256"
@@ -1012,6 +1049,25 @@ const config = {
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "onHoldFunds",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "owner",
         "outputs": [
@@ -1163,6 +1219,19 @@ const config = {
       {
         "inputs": [],
         "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenRewardRate",
+            "type": "uint256"
+          }
+        ],
+        "name": "setRewardRate",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

@@ -51,7 +51,9 @@ const TimelineItem = ({
           </svg>
         )}
       </div>
-      <div className="timeline-end timeline-box">{timelineEnd}</div>
+      {timelineEnd && (
+        <div className="timeline-end timeline-box">{timelineEnd}</div>
+      )}
       <hr
         className={clsx(isSelected && index < totalItems - 1 && "bg-primary")}
       />

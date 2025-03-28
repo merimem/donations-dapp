@@ -1,22 +1,27 @@
-import hre from "hardhat"
+import { ethers } from "hardhat"
 
 async function main() {
-  const accounts = await hre.ethers.getSigners()
+  const [donor, adr2, addr3] = await ethers.getSigners()
 
-  for (const account of accounts) {
-    console.log(account.address)
-  }
-  const storage = await hre.ethers.getContractFactory("DonationPools")
-  const contract = storage.attach("0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199")
+  const DonationContract = await ethers.getContractFactory("Chain4Good")
+  const donationContractAddress = "0x40918Ba7f132E0aCba2CE4de4c4baF9BD2D7D849"
+  const donationContract = await DonationContract.attach(
+    donationContractAddress
+  )
 
-  //   const tx = await contract.donate(0, {
-  //     value: "1000",
-  //   })
-  //   await tx.wait() // Attends que la transaction soit validée
-  const poolIndex = hre.ethers.toBigInt(0)
-  //const pool = await contract.pools(poolIndex)
-  // console.log(`Pool ${0} balance: ${hre.ethers.formatEther(pool.balance)} ETH`)
-  //.utils.formatEther(pool.balance)} ETH`
+  const donationAmount = ethers.parseEther("1") // Donating 1 ETH
+  console.log(`Donating ${ethers.formatEther(donationAmount)} ETH...`)
+  // Send the donation
+  const tx = await donationContract
+    .connect(addr3)
+    .donate(0, { value: donationAmount })
+
+  // Wait for the transaction to be mined
+  await tx.wait()
+
+  console.log(`Donation of 1 ETH successful! Transaction hash: ${tx.hash}`)
+
+  // Check total donations
 }
 
 main().catch((error) => {

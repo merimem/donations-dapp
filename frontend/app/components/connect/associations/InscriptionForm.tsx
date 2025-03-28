@@ -67,8 +67,8 @@ const InscriptionForm = ({ address }: InscriptionFormProps) => {
       )}
       {isConfirmed && (
         <div className="text-accent">
-          Your inscription is confirmed. An admin will analyse your registration
-          and come back to you soon!
+          Your registration has been confirmed. An administrator will review
+          your submission and get back to you shortly!
         </div>
       )}
     </>

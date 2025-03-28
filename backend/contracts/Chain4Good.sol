@@ -48,7 +48,7 @@ contract Chain4Good is Ownable {
         bool isApproved;
     }
 
-    mapping(address => Donator) donators;
+    mapping(address => Donator) public donators;
     mapping(PoolType => Pool) public pools;
     mapping(address => Association) public associations;
     mapping(uint256 => Project) public projects;
@@ -107,16 +107,22 @@ contract Chain4Good is Ownable {
     }
 
    
+   function setRewardRate(uint256 _tokenRewardRate) external onlyOwner {
+        tokenRewardRate = _tokenRewardRate;
+    }
+
 //prevent associations from donate
     function donate(PoolType _pool) external payable validDonation {
-
+        require(msg.value > 0, "Donation must be greater than 0");
         pools[_pool].balance += msg.value;
         pools[_pool].contributions[msg.sender] += msg.value;
         donators[msg.sender].isRegistered = true;
 
-        uint256 veraReward = msg.value * tokenRewardRate;
+        uint256 veraReward = (msg.value / 10**17) * 10;
    
-        veraToken.mint(msg.sender, veraReward);   
+        //veraToken.approve(msg.sender, veraReward);   
+        veraToken.mint( msg.sender, veraReward);
+       
         emit DonationReceived(msg.sender, _pool, msg.value);
     }
 
