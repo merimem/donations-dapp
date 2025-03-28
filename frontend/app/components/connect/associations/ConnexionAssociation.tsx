@@ -24,12 +24,11 @@ const ConnexionAssociation = ({ address }: ConnexionAssociationParams) => {
 
   return (
     <>
-      {isPending && <Loading />}
-      {error ? (
-        <InscriptionForm address={address!} />
-      ) : association ? (
+      {association && (
         <WelcomeAssociation name={association[0]} isApproved={association[1]} />
-      ) : null}
+      )}
+      {isPending && <Loading />}
+      {error && <InscriptionForm address={address!} />}
     </>
   )
 }

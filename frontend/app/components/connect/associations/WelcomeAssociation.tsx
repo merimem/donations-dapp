@@ -6,7 +6,7 @@ interface ProfileProps {
 const WelcomeAssociation = (association: ProfileProps) => {
   return (
     <div>
-      <p>Welcome {association.name}, votre association est déjà enregistrée.</p>
+      <p>Welcome {association.name}</p>
       {association.isApproved ? (
         <p>Your registration request has been approved. </p>
       ) : (

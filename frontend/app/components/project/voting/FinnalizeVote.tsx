@@ -23,7 +23,6 @@ const FinnalizeVote = ({ projectId }: FinnalizeVoteProps) => {
     } finally {
     }
   }
-  console.log("herree")
   return (
     <div className=" bg-card p-4 mx-auto mt-4 w-[400px]">
       <button
