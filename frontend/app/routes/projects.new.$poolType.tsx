@@ -87,6 +87,10 @@ export default function Create() {
     functionName: "getAllAssociations",
   })
   const [associations, addresses] = associationsData || [[], []]
+  const mergedTable = associations.map((association, index) => ({
+    ...association,
+    address: addresses[index],
+  }))
 
   useEffect(() => {
     setSelectedAssociation(addresses[0])
@@ -206,11 +210,13 @@ export default function Create() {
                 value={selectedAssociation}
                 required
               >
-                {addresses.map((addr) => (
-                  <option value={addr} key={addr}>
-                    {addr}
-                  </option>
-                ))}
+                {mergedTable
+                  .filter((asso) => asso.isApproved != false)
+                  .map((addr, index) => (
+                    <option value={addr.address} key={addr.address}>
+                      {addr.address}
+                    </option>
+                  ))}
               </select>
             </fieldset>
             <button className="btn btn-primary mt-4" disabled={isPending}>

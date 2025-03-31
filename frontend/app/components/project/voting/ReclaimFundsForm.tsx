@@ -20,15 +20,6 @@ const ReclaimFundsForm = () => {
             className="flex h-10  rounded-md border  px-3 py-2 text-sm"
             placeholder="1 coupon"
           />
-
-          <label className="label" htmlFor="title">
-            Amount in each coupons
-          </label>
-          <input
-            type="number"
-            className="flex h-10  rounded-md border  px-3 py-2 text-sm"
-            placeholder="0.1 Eth"
-          />
         </div>
         <div className="mt-6">
           <button
