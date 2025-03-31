@@ -1,9 +1,3 @@
-name: Test Suite
-
-on:
-  push:
-    branches: [main]
-
 jobs:
   tests:
     name: Backend Smart Contract Tests
@@ -22,6 +16,10 @@ jobs:
       - name: Install dependencies
         working-directory: backend
         run: npm ci
+
+      - name: Start Hardhat Node
+        working-directory: backend
+        run: npx hardhat node &
 
       - name: Run Tests
         working-directory: backend

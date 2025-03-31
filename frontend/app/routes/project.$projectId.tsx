@@ -102,7 +102,7 @@ export default function ProjectComponent() {
         {contextUser.userType === UserType.Owner && (
           <FinnalizeVote projectId={projectId} />
         )}
-        <ReclaimFundsForm />
+        {/* <ReclaimFundsForm /> */}
       </div>
     </div>
   )

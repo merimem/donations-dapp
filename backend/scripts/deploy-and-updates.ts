@@ -13,6 +13,7 @@ const BASE_ARTIFACTS_DIR = path.join(__dirname, "../artifacts/contracts")
 const EXPECTED_CONTRACTS: Record<string, string> = {
   Chain4Good: "Chain4Good",
   VeraToken: "VeraToken",
+  CouponNFT: "CouponNFT",
 }
 
 interface FrontendConfig {

@@ -16,8 +16,6 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-type Association = readonly [string, boolean]
-
 export default function Connect() {
   const { address, isConnected } = useAccount()
   const { userType } = useParams()

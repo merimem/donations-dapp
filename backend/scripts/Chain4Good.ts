@@ -1,10 +1,10 @@
 import { ethers } from "hardhat"
 
 async function main() {
-  const [donor, adr2, addr3] = await ethers.getSigners()
+  const [owner, donor, adr2, addr3] = await ethers.getSigners()
 
   const DonationContract = await ethers.getContractFactory("Chain4Good")
-  const donationContractAddress = "0x40918Ba7f132E0aCba2CE4de4c4baF9BD2D7D849"
+  const donationContractAddress = "0xF9c0bF1CFAAB883ADb95fed4cfD60133BffaB18a"
   const donationContract = await DonationContract.attach(
     donationContractAddress
   )
@@ -15,9 +15,14 @@ async function main() {
   const tx = await donationContract
     .connect(addr3)
     .donate(0, { value: donationAmount })
-
-  // Wait for the transaction to be mined
+  await donationContract.connect(addr3).donate(0, { value: donationAmount })
   await tx.wait()
+
+  const y = await donationContract
+    .connect(owner)
+    .getContribution(0, addr3.address)
+  // Wait for the transaction to be mined
+  console.log("yyyyy", y.toString())
 
   console.log(`Donation of 1 ETH successful! Transaction hash: ${tx.hash}`)
 
