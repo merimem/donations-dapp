@@ -24,18 +24,14 @@ describe("DonationPools", function () {
 
   async function deployVeraFixture(owner: HardhatEthersSigner) {
     const Vera = await ethers.getContractFactory("VeraToken")
-    const veraToken = await Vera.connect(owner).deploy(owner.address, {
-      gasLimit: 30000000,
-    })
+    const veraToken = await Vera.connect(owner).deploy(owner.address)
     veraToken.waitForDeployment()
     return veraToken
   }
 
   async function deployCouponNFTFixture(owner: HardhatEthersSigner) {
     const CouponNFT = await ethers.getContractFactory("CouponNFT")
-    const couponNFT = await CouponNFT.connect(owner).deploy(owner.address, {
-      gasLimit: 30000000,
-    })
+    const couponNFT = await CouponNFT.connect(owner).deploy(owner.address)
     couponNFT.waitForDeployment()
     return couponNFT
   }
@@ -52,10 +48,7 @@ describe("DonationPools", function () {
       couponNFTAddress,
       votingDelay,
       tokenRewardRate,
-      quorum,
-      {
-        gasLimit: 30000000,
-      }
+      quorum
     )
     donationPools.waitForDeployment()
     return donationPools
@@ -98,10 +91,7 @@ describe("DonationPools", function () {
         couponNFT.target,
         votingDelay,
         tokenRewardRate,
-        quorum,
-        {
-          gasLimit: 30000000,
-        }
+        quorum
       )
 
       expect(await donationPools.veraToken()).to.equal(veraToken.target)
@@ -119,10 +109,7 @@ describe("DonationPools", function () {
           couponNFT.target,
           votingDelay,
           tokenRewardRate,
-          quorum,
-          {
-            gasLimit: 30000000,
-          }
+          quorum
         )
       ).to.be.revertedWith("Invalid VERA token address")
     })
@@ -136,10 +123,7 @@ describe("DonationPools", function () {
           ethers.ZeroAddress,
           votingDelay,
           tokenRewardRate,
-          quorum,
-          {
-            gasLimit: 30000000,
-          }
+          quorum
         )
       ).to.be.revertedWith("Invalid CouponNFT address")
     })
@@ -213,6 +197,14 @@ describe("DonationPools", function () {
       )
       expect(poolBalance).to.equal(0)
     })
+
+    it("Should allow owner to set reward rate", async function () {
+      const newRewardRate = 500
+      await donationPoolsContract.setRewardRate(newRewardRate)
+      const storedRate = await donationPoolsContract.tokenRewardRate()
+
+      expect(storedRate).to.equal(newRewardRate)
+    })
   })
 
   describe("donations", function () {
@@ -226,10 +218,7 @@ describe("DonationPools", function () {
       addr2 = fixtures.addr2
       donor = fixtures.donor
       await veraTokenContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
     })
 
@@ -239,7 +228,7 @@ describe("DonationPools", function () {
       await expect(
         donationPoolsContract
           .connect(donor)
-          .donate(randomPoolIndex, { value: 0, gasLimit: 3000000 })
+          .donate(randomPoolIndex, { value: 0 })
       ).to.be.revertedWithCustomError(
         donationPoolsContract,
         "DonationMustBeGreaterThanZero"
@@ -286,7 +275,7 @@ describe("DonationPools", function () {
       await expect(
         donationPoolsContract
           .connect(donor)
-          .donate(randomPoolIndex, { value: donationAmount, gasLimit: 3000000 })
+          .donate(randomPoolIndex, { value: donationAmount })
       )
         .to.emit(donationPoolsContract, "DonationReceived")
         .withArgs(donor.getAddress(), randomPoolIndex, donationAmount)
@@ -303,7 +292,7 @@ describe("DonationPools", function () {
       const donationAmount = ethers.parseEther("1")
       await donationPoolsContract
         .connect(donor)
-        .donate(randomPoolIndex, { value: donationAmount, gasLimit: 3000000 })
+        .donate(randomPoolIndex, { value: donationAmount })
 
       const veraBalance = await veraTokenContract.balanceOf(donor.getAddress())
       expect(veraBalance).to.equal(100)
@@ -316,10 +305,10 @@ describe("DonationPools", function () {
 
       await donationPoolsContract
         .connect(addr1)
-        .donate(poolIndex, { value: donationAmount1, gasLimit: 3000000 })
+        .donate(poolIndex, { value: donationAmount1 })
       await donationPoolsContract
         .connect(addr2)
-        .donate(poolIndex, { value: donationAmount2, gasLimit: 3000000 })
+        .donate(poolIndex, { value: donationAmount2 })
 
       // Vérifier les contributions individuelles
       const contribution1 = await donationPoolsContract.getContribution(
@@ -345,7 +334,7 @@ describe("DonationPools", function () {
 
       await donationPoolsContract
         .connect(donor)
-        .donate(randomPoolIndex, { value: donationAmount, gasLimit: 3000000 })
+        .donate(randomPoolIndex, { value: donationAmount })
 
       const contribution = await donationPoolsContract.getContribution(
         randomPoolIndex,
@@ -364,10 +353,10 @@ describe("DonationPools", function () {
 
       await donationPoolsContract
         .connect(donor)
-        .donate(poolIndex, { value: donationAmount1, gasLimit: 3000000 })
+        .donate(poolIndex, { value: donationAmount1 })
       await donationPoolsContract
         .connect(donor)
-        .donate(poolIndex, { value: donationAmount2, gasLimit: 3000000 })
+        .donate(poolIndex, { value: donationAmount2 })
 
       const totalContribution = await donationPoolsContract.getContribution(
         poolIndex,
@@ -392,13 +381,13 @@ describe("DonationPools", function () {
 
       await donationPoolsContract
         .connect(donor)
-        .donate(poolIndex1, { value: donationAmount1, gasLimit: 3000000 })
+        .donate(poolIndex1, { value: donationAmount1 })
       await donationPoolsContract
         .connect(donor)
-        .donate(poolIndex2, { value: donationAmount2, gasLimit: 3000000 })
+        .donate(poolIndex2, { value: donationAmount2 })
       await donationPoolsContract
         .connect(donor)
-        .donate(poolIndex3, { value: donationAmount3, gasLimit: 3000000 })
+        .donate(poolIndex3, { value: donationAmount3 })
 
       const contribution1 = await donationPoolsContract.getContribution(
         poolIndex1,
@@ -447,10 +436,7 @@ describe("DonationPools", function () {
       addr2 = fixtures.addr2
       donor = fixtures.donor
       await veraTokenContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
       await donationPoolsContract
         .connect(donor)
@@ -463,15 +449,60 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("0.1"),
-          randomAddress,
-          {
-            gasLimit: 3000000,
-          }
+          randomAddress
         )
       const project = await donationPoolsContract.projects(projectId)
       expect(project.amountRequired).to.equal(ethers.parseEther("0.1"))
       expect(project.status).to.equal(0)
       expect(project.receiver).to.equal(randomAddress)
+    })
+
+    it("Should return all project IDs and project details", async function () {
+      const projectId1 = faker.number.bigInt()
+      const projectId2 = faker.number.bigInt()
+      const tx0 = await donationPoolsContract.createProject(
+        projectId1,
+        poolType,
+        ethers.parseEther("0.1"),
+        randomAddress
+      )
+      const receipt0 = await tx0.wait()
+      const blockNumber0 = receipt0 && receipt0.blockNumber
+
+      const tx1 = await donationPoolsContract.createProject(
+        projectId2,
+        poolType,
+        ethers.parseEther("0.2"),
+        randomAddress
+      )
+      const receipt1 = await tx1.wait()
+      const blockNumber1 = receipt1 && receipt1.blockNumber
+
+      const [projectIds, projects] =
+        await donationPoolsContract.getAllProjects()
+
+      expect(projectIds.length).to.equal(2)
+      expect(projects.length).to.equal(2)
+
+      expect(projectIds[0]).to.equal(projectId1)
+      expect(projects[0][1]).to.equal(ethers.parseEther("0.1"))
+      expect(projects[0][0]).to.equal(randomAddress)
+      expect(projects[0][2]).to.equal(0)
+      expect(projects[0][3]).to.equal(0)
+      expect(projects[0][4]).to.equal(blockNumber0)
+      expect(projects[0][6]).to.equal(false)
+      expect(projects[0][7]).to.equal(poolType)
+      expect(projects[0][8]).to.equal(0)
+
+      expect(projectIds[1]).to.equal(projectId2)
+      expect(projects[1][1]).to.equal(ethers.parseEther("0.2"))
+      expect(projects[1][0]).to.equal(randomAddress)
+      expect(projects[1][2]).to.equal(0)
+      expect(projects[1][3]).to.equal(0)
+      expect(projects[1][4]).to.equal(blockNumber1)
+      expect(projects[0][6]).to.equal(false)
+      expect(projects[1][7]).to.equal(poolType)
+      expect(projects[0][8]).to.equal(0)
     })
 
     it("should revert if amountRequired is more than pool balance", async function () {
@@ -480,8 +511,7 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("10"),
-          randomAddress,
-          { gasLimit: 3000000 }
+          randomAddress
         )
       ).to.be.revertedWith("Amount must be less or equal to pool balance")
     })
@@ -492,8 +522,7 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           0,
-          randomAddress,
-          { gasLimit: 3000000 }
+          randomAddress
         )
       ).to.be.revertedWith("Amount must be greater than zero")
     })
@@ -504,10 +533,39 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("1"),
-          ethers.ZeroAddress,
-          { gasLimit: 3000000 }
+          ethers.ZeroAddress
         )
       ).to.be.revertedWith("Invalid receiver address")
+    })
+
+    it("Should allow owner to change project status", async function () {
+      await donationPoolsContract.createProject(
+        projectId,
+        poolType,
+        ethers.parseEther("0.1"),
+        randomAddress
+      )
+
+      await donationPoolsContract.changeProjectStatus(0, 1)
+
+      const project = await donationPoolsContract.projects(0)
+      expect(project.status).to.equal(1)
+    })
+
+    it("Should revert if a non-owner tries to change project status", async function () {
+      await donationPoolsContract.createProject(
+        projectId,
+        poolType,
+        ethers.parseEther("0.1"),
+        randomAddress
+      )
+
+      await expect(
+        donationPoolsContract.connect(addr1).changeProjectStatus(0, 1)
+      ).to.be.revertedWithCustomError(
+        donationPoolsContract,
+        "OwnableUnauthorizedAccount"
+      )
     })
   })
 
@@ -522,19 +580,13 @@ describe("DonationPools", function () {
       addr2 = fixtures.addr2
       donor = fixtures.donor
       await veraTokenContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
     })
     it("Should register an association successfully", async function () {
       await donationPoolsContract.registerAssociation(
         "Red Cross",
-        addr1.getAddress(),
-        {
-          gasLimit: 3000000,
-        }
+        addr1.getAddress()
       )
 
       const registeredAssociation = await donationPoolsContract.associations(
@@ -547,14 +599,9 @@ describe("DonationPools", function () {
     it("Should approve an association successfully", async function () {
       await donationPoolsContract.registerAssociation(
         "Red Cross",
-        addr1.getAddress(),
-        {
-          gasLimit: 3000000,
-        }
+        addr1.getAddress()
       )
-      await donationPoolsContract.approveAssociation(addr1.getAddress(), {
-        gasLimit: 3000000,
-      })
+      await donationPoolsContract.approveAssociation(addr1.getAddress())
 
       const approvedAssociation = await donationPoolsContract.associations(
         addr1.getAddress()
@@ -564,15 +611,12 @@ describe("DonationPools", function () {
     it("should reject an existing association and remove it from the list", async function () {
       await donationPoolsContract.registerAssociation(
         "Red Cross",
-        addr1.getAddress(),
-        {
-          gasLimit: 3000000,
-        }
+        addr1.getAddress()
       )
       await expect(
         donationPoolsContract
           .connect(owner)
-          .rejectAssociation(addr1.getAddress(), { gasLimit: 3000000 })
+          .rejectAssociation(addr1.getAddress())
       )
         .to.emit(donationPoolsContract, "AssociationRejected")
         .withArgs(addr1.getAddress())
@@ -591,44 +635,33 @@ describe("DonationPools", function () {
     it("Should not allow duplicate association registration", async function () {
       await donationPoolsContract.registerAssociation(
         "Red Cross",
-        addr1.getAddress(),
-        {
-          gasLimit: 3000000,
-        }
+        addr1.getAddress()
       )
       await expect(
-        donationPoolsContract.registerAssociation("Red", addr1.getAddress(), {
-          gasLimit: 3000000,
-        })
+        donationPoolsContract.registerAssociation("Red", addr1.getAddress())
       ).to.be.revertedWith("Association already exists")
     })
 
     it("Should revert if approving a non-existent association", async function () {
       await expect(
-        donationPoolsContract.approveAssociation(addr1.getAddress(), {
-          gasLimit: 3000000,
-        })
+        donationPoolsContract.approveAssociation(addr1.getAddress())
       ).to.be.revertedWith("Association does not exist")
     })
 
     it("Should revert if rejecting a non-existent association", async function () {
       await expect(
-        donationPoolsContract.rejectAssociation(addr1.getAddress(), {
-          gasLimit: 3000000,
-        })
+        donationPoolsContract.rejectAssociation(addr1.getAddress())
       ).to.be.revertedWith("Association does not exist")
     })
 
     it("Should get association details successfully", async function () {
       await donationPoolsContract.registerAssociation(
         "Red Cross",
-        await addr1.getAddress(),
-        { gasLimit: 3000000 }
+        await addr1.getAddress()
       )
 
       const association = await donationPoolsContract.getAssociation(
-        await addr1.getAddress(),
-        { gasLimit: 3000000 }
+        await addr1.getAddress()
       )
 
       expect(association[0]).to.equal("Red Cross") // Name
@@ -644,21 +677,15 @@ describe("DonationPools", function () {
     it("Should return all registered associations with addresses ", async function () {
       await donationPoolsContract.registerAssociation(
         "Red Cross",
-        addr1.getAddress(),
-        {
-          gasLimit: 3000000,
-        }
+        addr1.getAddress()
       )
       await donationPoolsContract.registerAssociation(
         "UNICEF",
-        addr2.getAddress(),
-        {
-          gasLimit: 3000000,
-        }
+        addr2.getAddress()
       )
 
       const [allAssociations, allAddresses] =
-        await donationPoolsContract.getAllAssociations({ gasLimit: 3000000 })
+        await donationPoolsContract.getAllAssociations()
       await expect(allAssociations.length).to.equal(2)
       await expect(allAssociations[0].name).to.equal("Red Cross")
       await expect(allAddresses[0]).to.equal(await addr1.getAddress())
@@ -681,27 +708,21 @@ describe("DonationPools", function () {
       addr2 = fixtures.addr2
       donor = fixtures.donor
       await veraTokenContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
       donationAmount = ethers.parseEther("2")
       await donationPoolsContract
         .connect(donor)
-        .donate(poolType, { value: ethers.parseEther("2"), gasLimit: 3000000 })
+        .donate(poolType, { value: ethers.parseEther("2") })
       await donationPoolsContract.createProject(
         projectId,
         poolType,
         ethers.parseEther("1"),
-        randomAddress,
-        { gasLimit: 3000000 }
+        randomAddress
       )
     })
     it("Should revert if a donor tries to vote twice on the same project", async function () {
-      await donationPoolsContract
-        .connect(donor)
-        .voteOnProject(projectId, false, { gasLimit: 3000000 })
+      await donationPoolsContract.connect(donor).voteOnProject(projectId, false)
       await expect(
         donationPoolsContract.connect(donor).voteOnProject(projectId, true)
       ).to.be.revertedWith("Donor has already voted")
@@ -737,12 +758,10 @@ describe("DonationPools", function () {
       const anotherPoolType = 1
       await donationPoolsContract
         .connect(addr1)
-        .donate(2, { value: ethers.parseEther("20"), gasLimit: 3000000 })
+        .donate(2, { value: ethers.parseEther("20") })
       await donationPoolsContract
         .connect(owner)
-        .createProject(2, 2, ethers.parseEther("1"), randomAddress, {
-          gasLimit: 3000000,
-        })
+        .createProject(2, 2, ethers.parseEther("1"), randomAddress)
 
       await expect(
         donationPoolsContract.connect(donor).voteOnProject(2, true)
@@ -799,21 +818,16 @@ describe("DonationPools", function () {
       addr2 = fixtures.addr2
       donor = fixtures.donor
       await veraTokenContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
       donationAmount = ethers.parseEther("2")
       await donationPoolsContract
         .connect(donor)
-        .donate(poolId, { value: donationAmount, gasLimit: 3000000 })
+        .donate(poolId, { value: donationAmount })
 
       await donationPoolsContract
         .connect(owner)
-        .createProject(projectId, poolId, targetAmount, randomAddress, {
-          gasLimit: 30000000,
-        })
+        .createProject(projectId, poolId, targetAmount, randomAddress)
     })
 
     it("should revert if finallizeVotes called by non-owner", async function () {
@@ -889,63 +903,50 @@ describe("DonationPools", function () {
       donor = fixtures.donor
       association = fixtures.association
       await veraTokenContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
       await couponNFTContract.transferOwnership(
-        await donationPoolsContract.getAddress(),
-        {
-          gasLimit: 30000000,
-        }
+        await donationPoolsContract.getAddress()
       )
       donationAmount = ethers.parseEther("2")
-      //register donator
       await donationPoolsContract
         .connect(donor)
-        .donate(roomPoolIndex, { value: donationAmount, gasLimit: 3000000 })
+        .donate(roomPoolIndex, { value: donationAmount })
 
-      //create project
       await donationPoolsContract
         .connect(owner)
         .createProject(
           projectId,
           0,
           ethers.parseEther("2"),
-          association.getAddress(),
-          {
-            gasLimit: 3000000,
-          }
+          association.getAddress()
         )
-      //vote on project
-      await donationPoolsContract
-        .connect(donor)
-        .voteOnProject(projectId, true, { gasLimit: 3000000 })
-      //wait for voting delay
+      await donationPoolsContract.connect(donor).voteOnProject(projectId, true)
       await moveBlocks(votingDelay)
-      //finnallize votes
-      await donationPoolsContract
-        .connect(owner)
-        .finallizeVotes(projectId, { gasLimit: 3000000 })
+      await donationPoolsContract.connect(owner).finallizeVotes(projectId)
     })
 
     it("Should create coupons successfully", async function () {
       const projectId = 1
       const couponValue = ethers.parseEther("1")
-
+      const initialBalance = await ethers.provider.getBalance(
+        couponNFTContract.target
+      )
       await expect(
         donationPoolsContract
           .connect(association)
-          .createCoupons(projectId, couponValue, {
-            gasLimit: 30000000,
-          })
+          .createCoupons(projectId, couponValue)
       )
         .to.emit(donationPoolsContract, "CouponsCreated")
         .withArgs(projectId, 2)
 
       const projectDetails = await donationPoolsContract.getProject(projectId)
       expect(projectDetails.coupons.length).to.equal(2)
+
+      const finalBalance = await ethers.provider.getBalance(
+        couponNFTContract.target
+      )
+      expect(finalBalance).to.be.gt(initialBalance)
     })
 
     it("Should revert if targetAmount is not divisible by couponValue", async function () {
@@ -955,7 +956,7 @@ describe("DonationPools", function () {
       await expect(
         donationPoolsContract
           .connect(association)
-          .createCoupons(projectId, invalidCouponValue, { gasLimit: 3000000 })
+          .createCoupons(projectId, invalidCouponValue)
       ).to.be.revertedWith("TargetAmount not divisible by couponValue")
     })
 
@@ -963,9 +964,7 @@ describe("DonationPools", function () {
       const couponValue = ethers.parseEther("2")
 
       await expect(
-        donationPoolsContract
-          .connect(association)
-          .createCoupons(2, couponValue, { gasLimit: 3000000 })
+        donationPoolsContract.connect(association).createCoupons(2, couponValue)
       ).to.be.revertedWith("Project has not succeeded")
     })
 
@@ -976,7 +975,7 @@ describe("DonationPools", function () {
       await expect(
         donationPoolsContract
           .connect(addr1)
-          .createCoupons(projectId, couponValue, { gasLimit: 3000000 })
+          .createCoupons(projectId, couponValue)
       ).to.be.revertedWith("You are not the receiver of this project")
     })
   })

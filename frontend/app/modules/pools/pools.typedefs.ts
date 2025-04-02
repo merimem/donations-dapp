@@ -1,8 +1,8 @@
 export enum PoolType {
-  NaturalDisasters = 0,
-  HumanitarianCrises,
-  TechnologicalDisasters,
-  TransportDisasters,
-  SocialDisasters,
-  EnvironmentalDisasters,
+  Newborns = 0,
+  RespiratoryInfections,
+  DiarrhealDiseases,
+  Malaria,
+  Tuberculosis,
+  HIV,
 }

@@ -23,9 +23,9 @@ interface Event {
 }
 const Donate = ({ poolNumber }: DonateProps) => {
   const [amount, setAmount] = useState("")
-  const [customAmount, setCustomAmount] = useState("")
   const { address } = useAccount()
   const [events, setEvents] = useState<Event[]>([])
+  const [eventsStatus, setEventsstatus] = useState<Event[]>([])
   const { data: hash, error, isPending, writeContract } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
@@ -55,6 +55,12 @@ const Donate = ({ poolNumber }: DonateProps) => {
       ),
       // du 7895383 bloc
     })
+    const projectStatus = await publicClient.getLogs({
+      address: config.Chain4Good.address,
+      event: parseAbiItem(
+        "event ProjectStatusChanged(uint256 projectId, ProjectStatus status)"
+      ),
+    })
     const combinedEvents = donationReceived.map((event) => {
       return {
         type: "DonationReceived",
@@ -79,7 +85,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
     }
     getAllEvents()
   }, [address])
-  console.log("isConfirmed", isConfirmed)
+
   return (
     <div>
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm w-full max-w-md mx-auto mt-4">
@@ -126,7 +132,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
                         placeholder="Other amount"
                         type="number"
                         value={amount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
+                        onChange={(e) => setAmount(e.target.value)}
                       />
                     </div>
                   </label>
@@ -157,7 +163,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
         {error && <div className="text-error">Error {error.message}</div>}
       </div>
       <div className="mt-4">
-        Donations
+        {events.length && <span>Donations</span>}
         {events.map((e, i) => {
           return (
             <div key={String(e.address) + String(e.amount) + String(i)}>

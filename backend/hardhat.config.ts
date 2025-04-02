@@ -10,19 +10,19 @@ const config: HardhatUserConfig = {
     version: "0.8.28",
     settings: {
       optimizer: {
-        enabled: true, //Enables the solidity optimizer.
-        runs: 200, //Specifies the number of runs the optimizer should perform.
+        enabled: true,
+        runs: 200,
       },
     },
   },
-  defaultNetwork: "localhost",
+  // defaultNetwork: "hardhat",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
       allowUnlimitedContractSize: true,
-      gas: 30000000, // Match block gas limit
-      blockGasLimit: 30000000, // Ensure Hardhat runs with this limit
+      gas: 30000000,
+      blockGasLimit: 30000000,
     },
   },
 }

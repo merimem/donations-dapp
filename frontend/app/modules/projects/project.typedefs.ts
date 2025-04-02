@@ -37,6 +37,5 @@ export enum ProjectStatus {
   Approved,
   Rejected,
   Funding,
-  Funded,
   Completed,
 }

@@ -31,7 +31,7 @@ const PoolsCards = ({}: PoolsCardsParams) => {
                     title={key}
                     description={
                       <p className="">
-                        <span className="text-success">25$ </span> recolted
+                        {/* <span className="text-success">25$ </span> recolted */}
                       </p>
                     }
                     className="!rounded-none border border-[#00ff8c33]  hover:border-[#00ff8c99] hover:-translate-y-1 hover:shadow-[0_10px_20px_#00ff8c33] transition-all duration-300"

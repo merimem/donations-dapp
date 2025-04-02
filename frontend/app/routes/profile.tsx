@@ -1,8 +1,14 @@
 import { MetaFunction } from "@remix-run/node"
 import { useNavigate } from "@remix-run/react"
-import { useContext, useEffect, useMemo, useState } from "react"
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react"
 import { formatEther } from "viem"
-import { useAccount } from "wagmi"
+import { useAccount, useDisconnect } from "wagmi"
 import { UserContext } from "~/components/context/UserContext"
 import EthereumIcon from "~/components/layout/icons/EthereumIcon"
 import Loading from "~/components/layout/Loading"
@@ -21,18 +27,24 @@ export const meta: MetaFunction = () => {
 }
 
 export default function Profile() {
-  const { address, isConnected, status, isConnecting } = useAccount()
+  const { address, isConnected, isConnecting, isDisconnected } = useAccount()
+  const { disconnect } = useDisconnect()
   const [loading, setLoading] = useState(true)
   const [contributions, setContributions] = useState<bigint[]>([])
   const [veraBalance, setVeraBalance] = useState<bigint | null>(null)
-  const contextUser = useContext(UserContext)
   const navigate = useNavigate()
+  const [userType, setUserType] = useState<string | null>()
+  useLayoutEffect(() => {
+    const userType = window.localStorage.getItem("userType")
+    setUserType(userType)
+  }, [])
 
+  console.log("userType", userType)
   useEffect(() => {
-    if (status === "disconnected") {
-      navigate("/")
+    if (!isConnected && !isConnecting && !isDisconnected) {
+      disconnect()
     }
-  }, [status])
+  }, [isConnected, isConnecting, isDisconnected, disconnect])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,7 +146,7 @@ export default function Profile() {
               </div>
             </div>
             <TableDonations contributions={contributions} />
-            {contextUser.userType === UserType.Owner && <AssociationsRequest />}
+            {userType === UserType.Owner && <AssociationsRequest />}
           </>
         )
       )}

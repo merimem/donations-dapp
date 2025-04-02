@@ -1,5 +1,13 @@
-import { ethers } from "hardhat"
+import { ethers, network } from "hardhat"
 import { VOTING_DELAY } from "../utils/helpers"
+
+export async function moveBlocks(amount: number) {
+  console.log("Moving blocks...")
+  for (let index = 0; index < amount; index++) {
+    await network.provider.send("evm_mine")
+  }
+  console.log(`Moved ${amount} blocks`)
+}
 async function mineBlocks(numBlocks: number) {
   console.log(`Mining ${numBlocks} blocks...`)
   for (let i = 0; i < numBlocks; i++) {
@@ -22,13 +30,7 @@ async function fastForwardBlocks(blocksToSkip: number) {
 }
 
 async function main() {
-  const numBlocks = VOTING_DELAY // Change this to the number of blocks you want to mine
-  const timeIncrease = 60 * 60 // 1 hour (change as needed)
-  const blocksToSkip = 100 // Change this to skip blocks instantly
-
-  await mineBlocks(numBlocks)
-  //await increaseTime(timeIncrease)
-  //await fastForwardBlocks(blocksToSkip)
+  await moveBlocks(VOTING_DELAY)
 }
 
 main()

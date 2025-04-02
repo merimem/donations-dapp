@@ -29,12 +29,17 @@ export default function Connect() {
   const contextUser = useContext(UserContext)
 
   useEffect(() => {
+    let userTypeToSet
     if (isConnected && address && address === contractOwner) {
-      contextUser.setUserType(UserType.Owner)
+      userTypeToSet = UserType.Owner
     } else if (isConnected && address && userType === UserType.Association) {
-      contextUser.setUserType(UserType.Association)
+      userTypeToSet = UserType.Association
     } else if (isConnected && address && userType === UserType.Donator) {
-      contextUser.setUserType(UserType.Donator)
+      userTypeToSet = UserType.Donator
+    }
+    if (userTypeToSet) {
+      contextUser.setUserType(userTypeToSet)
+      localStorage.setItem("userType", userTypeToSet)
     }
   }, [contractOwner, isConnected])
 
