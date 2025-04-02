@@ -67,8 +67,8 @@ interface TimelineProps {
 const Timeline = ({ itemsProps }: TimelineProps) => {
   return (
     <ul className="timeline p-4">
-      {itemsProps.map((items) => (
-        <TimelineItem {...items} key={items.index} />
+      {itemsProps.map((items, index) => (
+        <TimelineItem {...items} key={index} />
       ))}
     </ul>
   )

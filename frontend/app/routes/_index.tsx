@@ -15,9 +15,11 @@ export default function Index() {
       {/* <div className="relative w-[400px] h-[200px]"> */}
       <Globe />
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl">
-        <p className="font-title relative z-2 mx-auto text-xl leading-none font-black">
-          Strengthening healthcare access in West Africa through the power of
-          donation.
+        <p className="font-title relative z-2 mx-auto text-6xl leading-none font-black">
+          Strengthening healthcare access
+          <span className="text-xl">
+            in West Africa through the power of donation.
+          </span>
         </p>
       </div>
       {/* </div> * */}

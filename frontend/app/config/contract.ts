@@ -1,6 +1,6 @@
 const config = {
   "CouponNFT": {
-    "address": "0x1f53E116c31F171e59f45f0752AEc5d1F5aA3714",
+    "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     "abi": [
       {
         "inputs": [
@@ -305,30 +305,6 @@ const config = {
         "inputs": [
           {
             "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "name": "coupons",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "projectId",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
             "name": "value",
             "type": "uint256"
           },
@@ -379,19 +355,43 @@ const config = {
             "internalType": "uint256",
             "name": "tokenId",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "projectId",
+            "type": "uint256"
           }
         ],
-        "name": "getCouponDetails",
+        "name": "getCouponValue",
         "outputs": [
           {
             "internalType": "uint256",
             "name": "",
             "type": "uint256"
-          },
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
           {
             "internalType": "uint256",
-            "name": "",
+            "name": "projectId",
             "type": "uint256"
+          }
+        ],
+        "name": "getCouponsByProject",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "",
+            "type": "uint256[]"
           }
         ],
         "stateMutability": "view",
@@ -484,6 +484,11 @@ const config = {
           {
             "internalType": "uint256",
             "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "projectId",
             "type": "uint256"
           }
         ],
@@ -654,11 +659,15 @@ const config = {
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+      },
+      {
+        "stateMutability": "payable",
+        "type": "receive"
       }
     ]
   },
   "VeraToken": {
-    "address": "0xa31F4c0eF2935Af25370D9AE275169CCd9793DA3",
+    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
     "abi": [
       {
         "inputs": [
@@ -980,19 +989,6 @@ const config = {
         "type": "function"
       },
       {
-        "inputs": [],
-        "name": "s_maxSupply",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [
           {
             "internalType": "address",
@@ -1105,7 +1101,7 @@ const config = {
     ]
   },
   "Chain4Good": {
-    "address": "0xF9c0bF1CFAAB883ADb95fed4cfD60133BffaB18a",
+    "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     "abi": [
       {
         "inputs": [
@@ -1115,7 +1111,7 @@ const config = {
             "type": "address"
           },
           {
-            "internalType": "address",
+            "internalType": "address payable",
             "name": "_couponNFT",
             "type": "address"
           },
@@ -1173,6 +1169,11 @@ const config = {
           }
         ],
         "name": "OwnableUnauthorizedAccount",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "SendAmountFailed",
         "type": "error"
       },
       {
@@ -1332,7 +1333,7 @@ const config = {
           },
           {
             "indexed": false,
-            "internalType": "enum Chain4Good.ProjectStatus",
+            "internalType": "uint8",
             "name": "status",
             "type": "uint8"
           }
@@ -1525,6 +1526,11 @@ const config = {
             "internalType": "bool",
             "name": "isRegistered",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "firstDonationBlock",
+            "type": "uint256"
           }
         ],
         "stateMutability": "view",
@@ -1585,16 +1591,6 @@ const config = {
           {
             "components": [
               {
-                "internalType": "enum Chain4Good.PoolType",
-                "name": "poolType",
-                "type": "uint8"
-              },
-              {
-                "internalType": "enum Chain4Good.ProjectStatus",
-                "name": "status",
-                "type": "uint8"
-              },
-              {
                 "internalType": "address",
                 "name": "receiver",
                 "type": "address"
@@ -1616,11 +1612,6 @@ const config = {
               },
               {
                 "internalType": "uint256",
-                "name": "totalDonators",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
                 "name": "startBlock",
                 "type": "uint256"
               },
@@ -1628,6 +1619,21 @@ const config = {
                 "internalType": "uint256[]",
                 "name": "coupons",
                 "type": "uint256[]"
+              },
+              {
+                "internalType": "bool",
+                "name": "couponsHasBeenCreated",
+                "type": "bool"
+              },
+              {
+                "internalType": "enum Chain4Good.PoolType",
+                "name": "poolType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "enum Chain4Good.ProjectStatus",
+                "name": "status",
+                "type": "uint8"
               }
             ],
             "internalType": "struct Chain4Good.Project[]",
@@ -1718,16 +1724,6 @@ const config = {
           {
             "components": [
               {
-                "internalType": "enum Chain4Good.PoolType",
-                "name": "poolType",
-                "type": "uint8"
-              },
-              {
-                "internalType": "enum Chain4Good.ProjectStatus",
-                "name": "status",
-                "type": "uint8"
-              },
-              {
                 "internalType": "address",
                 "name": "receiver",
                 "type": "address"
@@ -1749,11 +1745,6 @@ const config = {
               },
               {
                 "internalType": "uint256",
-                "name": "totalDonators",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
                 "name": "startBlock",
                 "type": "uint256"
               },
@@ -1761,6 +1752,21 @@ const config = {
                 "internalType": "uint256[]",
                 "name": "coupons",
                 "type": "uint256[]"
+              },
+              {
+                "internalType": "bool",
+                "name": "couponsHasBeenCreated",
+                "type": "bool"
+              },
+              {
+                "internalType": "enum Chain4Good.PoolType",
+                "name": "poolType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "enum Chain4Good.ProjectStatus",
+                "name": "status",
+                "type": "uint8"
               }
             ],
             "internalType": "struct Chain4Good.Project",
@@ -1833,16 +1839,6 @@ const config = {
         "name": "projects",
         "outputs": [
           {
-            "internalType": "enum Chain4Good.PoolType",
-            "name": "poolType",
-            "type": "uint8"
-          },
-          {
-            "internalType": "enum Chain4Good.ProjectStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
             "internalType": "address",
             "name": "receiver",
             "type": "address"
@@ -1864,13 +1860,23 @@ const config = {
           },
           {
             "internalType": "uint256",
-            "name": "totalDonators",
+            "name": "startBlock",
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "startBlock",
-            "type": "uint256"
+            "internalType": "bool",
+            "name": "couponsHasBeenCreated",
+            "type": "bool"
+          },
+          {
+            "internalType": "enum Chain4Good.PoolType",
+            "name": "poolType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum Chain4Good.ProjectStatus",
+            "name": "status",
+            "type": "uint8"
           }
         ],
         "stateMutability": "view",

@@ -22,7 +22,6 @@ async function main() {
     .connect(owner)
     .getContribution(0, addr3.address)
   // Wait for the transaction to be mined
-  console.log("yyyyy", y.toString())
 
   console.log(`Donation of 1 ETH successful! Transaction hash: ${tx.hash}`)
 

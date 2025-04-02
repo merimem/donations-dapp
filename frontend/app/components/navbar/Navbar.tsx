@@ -47,18 +47,6 @@ const Navbar = () => {
             <li>
               <Link to={`/projects`}>Projects</Link>
             </li>
-            <li>
-              <a>Community</a>
-              <ul className="p-2">
-                <li>
-                  <a>Submenu 1</a>
-                </li>
-                <li>
-                  <a>Submenu 2</a>
-                </li>
-              </ul>
-            </li>
-            <li></li>
           </ul>
         </div>
         <Link className="btn btn-ghost text-xl" to="/">
@@ -88,7 +76,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
-              <ConnectButton showBalance={false} />
+              <ConnectButton showBalance={true} />
             </li>
           </ul>
         ) : (

@@ -40,7 +40,6 @@ export const action: ActionFunction = async ({ request }) => {
     poolType: formData.get("poolType") as string,
   }
   try {
-    console.log("data", data)
     return createProject({
       project: {
         ...data,
@@ -74,9 +73,7 @@ export default function Create() {
   const navigate = useNavigate()
   const params = useParams<{ poolType: string }>()
   const { poolType } = params
-  console.log("poolType", poolType)
   const poolValue = PoolType[poolType!]
-  console.log("selectedAssociation", selectedAssociation)
   const {
     data: associationsData,
     isLoading,

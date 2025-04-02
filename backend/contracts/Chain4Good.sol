@@ -6,7 +6,8 @@ import "./CouponNFT.sol";
 
 /**
  * @title Chain4Good
- * @dev Blockchain-based donation and governance system for crisis management
+ * @notice Blockchain-based donation and governance system for crisis management
+ * @dev A Smart contract that manages DAO
  */
 contract Chain4Good is Ownable {
     // Token and NFT contracts
@@ -21,21 +22,22 @@ contract Chain4Good is Ownable {
     address[] public associationWallets;
 
     enum PoolType { 
-        NaturalDisasters, 
-        HumanitarianCrises, 
-        TechnologicalDisasters, 
-        TransportDisasters, 
-        SocialDisasters, 
-        EnvironmentalDisasters 
+        Newborns, 
+        RespiratoryInfections, 
+        DiarrhealDiseases, 
+        Malaria, 
+        Tuberculosis, 
+        HIV 
     }
 
     enum UserType { Donator, Association }
-    enum ProjectStatus { Pending, Approved, Rejected, Funding, Funded, Completed }
+    enum ProjectStatus { Pending, Approved, Rejected, Funding, Completed }
 
     struct Pool {
         uint256 balance;
         mapping(address => uint256) contributions;
     }
+
     struct Project {
         address receiver;
         uint256 amountRequired;
@@ -43,6 +45,7 @@ contract Chain4Good is Ownable {
         uint256 noVotes;
         uint256 startBlock;
         uint256[] coupons;
+        bool couponsHasBeenCreated;
         PoolType poolType;
         ProjectStatus status;
     }
@@ -68,7 +71,7 @@ contract Chain4Good is Ownable {
     event DonaterRegistered(address donatorAddress);
     event DonationReceived(address indexed donor, uint8 pool, uint256 amount);
     event ProjectCreated(uint256 projectId, PoolType poolType, uint256 amountRequired);
-    event ProjectStatusChanged(uint256 projectId, ProjectStatus status);
+    event ProjectStatusChanged(uint256 projectId, uint8 status);
     event AssociationRegistered(address indexed associationAddress, string name);
     event AssociationApproved(address indexed associationAddress);
     event AssociationRejected(address indexed associationAddress);
@@ -78,6 +81,7 @@ contract Chain4Good is Ownable {
     error DonationMustBeGreaterThanZero();
     error DonatorAlreadyRegistered();
     error NotValidAddress();
+    error SendAmountFailed();
 
     modifier validConstructor(address _veraTokenAddress, address _couponNFT, uint48 _votingDelay, uint256 _tokenRewardRate, uint256 _quorum){
         require(_veraTokenAddress != address(0), "Invalid VERA token address");
@@ -91,22 +95,20 @@ contract Chain4Good is Ownable {
         if (msg.value == 0) revert DonationMustBeGreaterThanZero();
         _;    
     }
-    modifier onlyNotRegistered(address _address) {
-        require(
-            donators[_address].isRegistered == false,
-            DonatorAlreadyRegistered()
-        );
-        _;
-    }
+   
     modifier validAddress(address _addr) {
         require(_addr != address(0), NotValidAddress());
         _;
     }
    
-    /**
-     * @dev Contract constructor setting initial values
-     */
-    constructor(address _veraTokenAddress, address _couponNFT, uint48 _votingDelay, uint256 _tokenRewardRate, uint256 _quorum) Ownable(msg.sender) validConstructor( _veraTokenAddress, _couponNFT, _votingDelay, _tokenRewardRate, _quorum) {
+    /// @notice Initializes the contract with the required parameters.
+    /// @dev Ensures valid parameters using the `validConstructor` modifier.
+    /// @param _veraTokenAddress Address of the VeraToken contract.
+    /// @param _couponNFT Address of the CouponNFT contract.
+    /// @param _votingDelay Delay before voting starts.
+    /// @param _tokenRewardRate Token reward rate.
+    /// @param _quorum Voting quorum threshold.
+    constructor(address _veraTokenAddress, address payable _couponNFT, uint48 _votingDelay, uint256 _tokenRewardRate, uint256 _quorum) Ownable(msg.sender) validConstructor( _veraTokenAddress, _couponNFT, _votingDelay, _tokenRewardRate, _quorum) {
         veraToken = VeraToken(_veraTokenAddress);
         couponNFT = CouponNFT(_couponNFT);
 
@@ -115,16 +117,17 @@ contract Chain4Good is Ownable {
         quorum= _quorum;
     }
 
-    /**
-     * @dev Updates the reward rate for donations
-     */
-   function setRewardRate(uint256 _tokenRewardRate) external onlyOwner {
+    /// @notice Updates the token reward rate.
+    /// @dev Only the contract owner can call this function.
+    /// @param _tokenRewardRate The new reward rate for tokens.
+    function setRewardRate(uint256 _tokenRewardRate) external onlyOwner {
+        /// #if_succeeds _tokenRewardRate > 0;
         tokenRewardRate = _tokenRewardRate;
     }
 
-    /**
-     * @dev Allows users to donate to a specific pool
-     */
+    /// @notice Allows users to donate to a specific pool.
+    /// @dev Ensures valid donation conditions via the `validDonation` modifier.
+    /// @param _pool The pool to which the donation is made.
     function donate(PoolType _pool) external payable validDonation {
         pools[_pool].balance += msg.value;
         pools[_pool].contributions[msg.sender] += msg.value;
@@ -139,10 +142,13 @@ contract Chain4Good is Ownable {
     }
 
     
-    /**
-     * @dev Creates a new project for funding
-     */    
-     function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired, address _receiver) onlyOwner() external  {
+    /// @notice Creates a new project linked to a specific pool.
+    /// @dev Ensures valid project conditions before creation.
+    /// @param _projectId Unique identifier for the project.
+    /// @param _poolType The pool from which funds will be allocated.
+    /// @param _amountRequired The amount requested for the project.
+    /// @param _receiver The address receiving the funds if the project is approved.
+    function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired, address _receiver) onlyOwner() external  {
         require(_amountRequired > 0, "Amount must be greater than zero");
         require(_amountRequired <= pools[_poolType].balance, "Amount must be less or equal to pool balance");
         require(projects[_projectId].startBlock == 0, "Project already exists");
@@ -158,9 +164,10 @@ contract Chain4Good is Ownable {
         emit ProjectCreated(_projectId, _poolType, _amountRequired);
     }
 
-    /**
-     * @dev Allows donors to vote on a project
-     */
+    /// @notice Allows a registered donor to vote on a project.
+    /// @dev Ensures only eligible donors can vote and that their votes are counted properly.
+    /// @param _projectId The ID of the project being voted on.
+    /// @param _vote Boolean value representing the donor's vote (true for yes, false for no)./
     function voteOnProject(uint256 _projectId, bool _vote) external {
         require(donators[msg.sender].isRegistered, "Only registered donors can vote");
         require(projects[_projectId].startBlock != 0, "Project does not exist");
@@ -186,18 +193,21 @@ contract Chain4Good is Ownable {
 
    
 
-    /**
-     * @dev Change project status
-     */
+    /// @notice Allows the owner to update the status of a project.
+    /// @dev Ensures only the owner can change the status and emits an event.
+    /// @param _projectId The ID of the project whose status is being updated.
+    /// @param _status The new status to be assigned to the project.
     function changeProjectStatus(uint256 _projectId, ProjectStatus _status) external onlyOwner {      
         projects[_projectId].status = _status;
-        emit ProjectStatusChanged(_projectId, _status);
+        emit ProjectStatusChanged(_projectId, uint8(_status));
     }
 
 
-    /**
-     * @dev Register Association
-     */
+    /// @notice Registers a new association with a name and wallet address.
+    /// @dev Ensures the wallet address is valid, the association name is non-empty, 
+    ///      and that the association does not already exist.
+    /// @param _name The name of the association to register.
+    /// @param _wallet The wallet address associated with the association.
     function registerAssociation(string memory _name, address _wallet) external validAddress(_wallet) {
         require(bytes(_name).length > 0, "Name is required");
         require(bytes(associations[_wallet].name).length == 0, "Association already exists");
@@ -210,9 +220,9 @@ contract Chain4Good is Ownable {
         emit AssociationRegistered(_wallet, _name);
     }
 
-    /**
-     * @dev Approve association subscription
-     */
+    /// @notice Approves an association, changing its approval status to true.
+    /// @dev Ensures the association exists and is not already approved before changing the status.
+    /// @param _wallet The wallet address of the association to approve.
     function approveAssociation(address _wallet) external onlyOwner {
         require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
         require(!associations[_wallet].isApproved, "Already approved");
@@ -221,9 +231,9 @@ contract Chain4Good is Ownable {
         emit AssociationApproved(_wallet);
     }
 
-    /**
-     * @dev Reject association subscription
-     */
+    /// @notice Rejects an association, removing it from the list and deleting its data.
+    /// @dev Ensures the association exists before deletion and removes the wallet from the association list.
+    /// @param _wallet The wallet address of the association to reject.
     function rejectAssociation(address _wallet) external onlyOwner {
         require(bytes(associations[_wallet].name).length > 0, "Association does not exist");
         for (uint i = 0; i < associationWallets.length; i++) {
@@ -237,25 +247,36 @@ contract Chain4Good is Ownable {
         emit AssociationRejected(_wallet);
     }
 
-    /**
-     * @dev Create coupons for the approved amount
-     */
+    /// @notice Creates coupons for a given project if the conditions are met. 
+    /// @dev Verifies that the amount required is divisible by the coupon value, checks the project status, and ensures coupons have not already been created.
+    /// @param _projectId The ID of the project for which coupons will be created.
+    /// @param couponValue The value of each coupon created.
     function createCoupons(uint256 _projectId, uint256 couponValue) external {       
         require(projects[_projectId].amountRequired % couponValue == 0, "TargetAmount not divisible by couponValue");
         require(projects[_projectId].status == ProjectStatus.Approved, "Project has not succeeded");
         require(projects[_projectId].receiver == msg.sender, "You are not the receiver of this project");
+        require(projects[_projectId].couponsHasBeenCreated == false, "Coupons already created");
 
+        (bool received,) = address(couponNFT).call{ value: projects[_projectId].amountRequired }('');
+        if(!received) {
+            revert SendAmountFailed();
+        }
+        
         uint256 numberOfCoupons = projects[_projectId].amountRequired / couponValue;
         for (uint256 i = 0; i < numberOfCoupons; i++) {
             uint256 couponId = couponNFT.createCoupon(couponValue, _projectId, projects[_projectId].receiver);
             projects[_projectId].coupons.push(couponId);
         }
+        projects[_projectId].couponsHasBeenCreated = true;
+        projects[_projectId].status = ProjectStatus.Funding;
+
+        emit ProjectStatusChanged(_projectId, uint8(ProjectStatus.Funding));
         emit CouponsCreated(_projectId, numberOfCoupons);
     }
 
-    /**
-     * @dev End vote session
-     */
+    /// @notice Finalizes the voting for a project and updates its status based on the votes.
+    /// @dev Ensures the voting period has ended and checks if the project has enough votes to be approved or rejected. The project status is then updated accordingly.
+    /// @param _projectId The ID of the project whose votes are being finalized.
     function finallizeVotes(uint256 _projectId) external onlyOwner {
         require(projects[_projectId].amountRequired != 0, "Project does not exist");
         require(block.number >= projects[_projectId].startBlock + votingDelay, "Voting period not yet ended");
@@ -269,19 +290,21 @@ contract Chain4Good is Ownable {
             project.status = ProjectStatus.Rejected;
         }
 
-        emit ProjectStatusChanged(_projectId, project.status);
+        emit ProjectStatusChanged(_projectId, uint8(project.status));
     }
 
-    /**
-     * @dev Get a project bu projectId
-     */
+    /// @notice Returns the details of a specific project based on its ID.
+    /// @dev This function retrieves the project data stored in the `projects` mapping for the provided project ID.
+    /// @param _projectId The ID of the project.
+    /// @return project The details of the project corresponding to the provided ID.
     function getProject(uint256 _projectId) external view returns (Project memory) {
         return projects[_projectId];
     }
 
-    /**
-     * @dev Get all registered projects
-     */
+    /// @notice Retrieves all registered projects.
+    /// @dev This function iterates over the `projectIds` array and fetches each project from the `projects` mapping.
+    /// @return ids An array of project IDs.
+    /// @return projectList An array of `Project` structs, containing the details of each project.
    function getAllProjects() external view returns (uint256[] memory, Project[] memory) {
         Project[] memory projectList = new Project[](projectIds.length);
         for (uint256 i = 0; i < projectIds.length; i++) {
@@ -290,31 +313,44 @@ contract Chain4Good is Ownable {
         return (projectIds, projectList);
     }
 
-    /**
-     * @dev Get contribution of a specifid donator
-     */
+
+    /// @notice Retrieves the total contribution of a specific donor to a given pool.
+    /// @dev This function looks up the contributions of a donor to a specific pool and returns the total amount donated by the donor.
+    /// @param _pool The pool type to check the contribution for.
+    /// @param _donor The address of the donor to retrieve contributions for.
+    /// @return The total contribution amount of the donor in the specified pool.
     function getContribution(PoolType _pool, address _donor) external view returns (uint256) {
         return pools[_pool].contributions[_donor];
     }
 
     /**
-     * @dev Get pool balances by poolId
-     */
+    * @notice Retrieves the balance of a given pool.
+    * @dev This function returns the current balance of a specific pool based on its `PoolType`.
+    * @param _pool The pool type to check the balance for.
+    * @return The balance of the specified pool.
+    */
    function getPoolBalances(PoolType _pool) external view returns (uint256) {
         return pools[_pool].balance;
     }
 
-     /**
-     * @dev Get association by address
-     */
+    /**
+    * @notice Retrieves the name and approval status of a specific association by address.
+    * @dev This function checks if the association exists in the `associations` mapping and returns the name and approval status.
+    * @param _association The address of the association to retrieve.
+    * @return name The name of the association.
+    * @return isApproved The approval status of the association.
+    */
     function getAssociation(address _association) external view returns (string memory name, bool isApproved) {
         require(bytes(associations[_association].name).length > 0, "Association does not exist");
         return (associations[_association].name, associations[_association].isApproved);
     }
 
     /**
-     * @dev Get all associations registered and not
-     */
+    * @notice Retrieves all registered associations along with their wallet addresses.
+    * @dev This function iterates through the list of registered association wallets and retrieves their corresponding details.
+    * @return allAssociations An array of all registered associations, including their name and approval status.
+    * @return associationWallets An array of wallet addresses of the registered associations.
+    */
     function getAllAssociations() external view returns (Association[] memory, address[] memory) {
         Association[] memory allAssociations = new Association[](associationWallets.length);
         for (uint256 i = 0; i < associationWallets.length; i++) {

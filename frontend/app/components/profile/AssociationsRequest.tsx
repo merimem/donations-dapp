@@ -6,8 +6,6 @@ import Loading from "../layout/Loading"
 import ActionsButton from "./ActionsButton"
 
 const AssociationsRequest = () => {
-  const contextUser = useContext(UserContext)
-
   const {
     data: associationsData,
     isLoading,

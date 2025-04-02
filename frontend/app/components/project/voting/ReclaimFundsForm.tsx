@@ -1,24 +1,58 @@
-import React from "react"
+import React, { useState } from "react"
+import { formatEther, parseEther } from "viem"
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
+import config from "~/config/contract"
 
-const ReclaimFundsForm = () => {
+interface ReclaimFundsFormProps {
+  projectId: string
+}
+const ReclaimFundsForm = ({ projectId }: ReclaimFundsFormProps) => {
+  const [couponValue, setCouponValue] = useState("")
+  const {
+    data: hash,
+    error: errorContract,
+    isPending,
+    writeContract,
+  } = useWriteContract()
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    })
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    try {
+      await writeContract({
+        address: config.Chain4Good.address,
+        abi: config.Chain4Good.abi,
+        functionName: "createCoupons",
+        args: [BigInt(projectId), parseEther(couponValue)],
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
-    <div className="mx-auto mt-4 rounded-md border-2 p-4 ">
+    <div className="mx-auto mt-4 rounded-md border-2 p-4 w-[80%] ">
       <h3 className="font-semibold tracking-tight text-2xl">Reclaim funds</h3>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              Funds will be released in the form of coupons. How many coupons do
-              you need, and what amount should each coupon represent?
+              Funds will be released in the form of coupons. How much amount
+              should each coupon represents?
             </label>
           </div>
           <label className="label" htmlFor="title">
-            Number of coupons
+            Coupon value
           </label>
           <input
             type="number"
             className="flex h-10  rounded-md border  px-3 py-2 text-sm"
-            placeholder="1 coupon"
+            placeholder="1 Eth"
+            value={couponValue}
+            onChange={(e) => setCouponValue(e.target.value)}
           />
         </div>
         <div className="mt-6">
@@ -30,6 +64,11 @@ const ReclaimFundsForm = () => {
           </button>
         </div>
       </form>
+      {isConfirming && (
+        <div className="text-alert">Waiting for confirmation...</div>
+      )}
+      {isConfirmed && <div className="text-success">Sucess !</div>}
+      {errorContract?.message && <p className="text-error"> Error</p>}
     </div>
   )
 }
