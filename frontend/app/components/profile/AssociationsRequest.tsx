@@ -14,6 +14,7 @@ const AssociationsRequest = () => {
     address: config.Chain4Good.address,
     abi: config.Chain4Good.abi,
     functionName: "getAllAssociations",
+    args: [BigInt(0), BigInt(100)],
   })
   const [associations, addresses] = associationsData || [[], []]
 

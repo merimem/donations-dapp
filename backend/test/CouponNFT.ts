@@ -27,14 +27,14 @@ describe("CouponNFT", function () {
   })
 
   describe("createCoupon", function () {
-    it("Should allow owner to create a coupon", async function () {
-      const tx = await couponNFT.createCoupon(1000, 1, user1.address)
+    it("Should allow owner to create coupons", async function () {
+      const tx = await couponNFT.createCoupons(1000, 1, user1.address, 1)
       await tx.wait()
 
       expect(await couponNFT.nextTokenId()).to.equal(1)
     })
     it("Should store correct coupon details", async function () {
-      await couponNFT.createCoupon(500, 2, user1.address)
+      await couponNFT.createCoupons(500, 2, user1.address, 1)
 
       const value = await couponNFT.getCouponValue(0, 2)
       expect(value).to.equal(500)
@@ -42,7 +42,7 @@ describe("CouponNFT", function () {
 
     it("Should prevent non-owner from creating a coupon", async function () {
       await expect(
-        couponNFT.connect(user1).createCoupon(1000, 1, user2.address)
+        couponNFT.connect(user1).createCoupons(1000, 1, user2.address, 1)
       ).to.be.revertedWithCustomError(couponNFT, "OwnableUnauthorizedAccount")
     })
   })
@@ -54,11 +54,17 @@ describe("CouponNFT", function () {
 
       await owner.sendTransaction({ to: couponNFT.target, value })
 
-      const tx = await couponNFT.createCoupon(value, projectId, user1.address)
+      const tx = await couponNFT.createCoupons(
+        value,
+        projectId,
+        user1.address,
+        1
+      )
       const receipt = await tx.wait()
 
       const transferEvent =
         receipt && receipt.logs.find((log) => log.address === couponNFT.target)
+      //@ts-ignore
       const tokenId = transferEvent && transferEvent.args[2]
       const couponValue = await couponNFT.getCouponValue(tokenId, projectId)
 
@@ -66,23 +72,23 @@ describe("CouponNFT", function () {
 
       await couponNFT.connect(user1).redeemCoupon(tokenId, projectId)
 
-      expect(couponNFT.getCouponValue(tokenId, projectId)).to.be.revertedWith(
-        "Coupon does not exist"
-      )
+      expect(
+        couponNFT.getCouponValue(tokenId, projectId)
+      ).to.be.revertedWithCustomError(couponNFT, "NonexistentCoupon")
     })
 
     it("Should prevent non-owners from redeeming someone else's coupon", async function () {
-      await couponNFT.createCoupon(1000, projectId, user1.address)
+      await couponNFT.createCoupons(1000, projectId, user1.address, 1)
 
       await expect(
         couponNFT.connect(user2).redeemCoupon(0, projectId)
-      ).to.be.revertedWith("You are not the owner")
+      ).to.be.revertedWithCustomError(couponNFT, "NotCouponOwner")
     })
 
     it("Should prevent redeeming a non-existent coupon", async function () {
-      await expect(couponNFT.redeemCoupon(99, projectId)).to.be.revertedWith(
-        "Coupon does not exist"
-      )
+      await expect(
+        couponNFT.redeemCoupon(99, projectId)
+      ).to.be.revertedWithCustomError(couponNFT, "NonexistentCoupon")
     })
 
     it("Should transfer ETH when coupon is redeemed", async function () {
@@ -93,15 +99,17 @@ describe("CouponNFT", function () {
       })
 
       const couponValue = ethers.parseEther("5")
-      const tx = await couponNFT.createCoupon(
+      const tx = await couponNFT.createCoupons(
         couponValue,
         projectId,
-        user1.address
+        user1.address,
+        1
       )
       const receipt = await tx.wait()
 
       const transferEvent =
         receipt && receipt.logs.find((log) => log.address === couponNFT.target)
+      //@ts-ignore
       const tokenId = transferEvent && transferEvent.args[2]
       const contractBalanceBefore = await ethers.provider.getBalance(
         couponNFT.target
@@ -137,10 +145,11 @@ describe("CouponNFT", function () {
       })
 
       const couponValue = ethers.parseEther("0.1")
-      const tx = await couponNFT.createCoupon(
+      const tx = await couponNFT.createCoupons(
         couponValue,
         projectId,
-        user1.address
+        user1.address,
+        1
       )
       const receipt = await tx.wait()
       //@ts-ignore
@@ -166,19 +175,23 @@ describe("CouponNFT", function () {
   describe("getCouponsByProject", function () {
     it("should create coupons and retrieve them by projectId", async function () {
       const projectId = 1
+      const nbrCoupons = 3
+      const couponValue = 100
 
-      await couponNFT.createCoupon(100, projectId, user1.address)
-      await couponNFT.createCoupon(200, projectId, user2.address)
-      await couponNFT.createCoupon(300, projectId, user1.address)
-
+      await couponNFT.createCoupons(
+        couponValue,
+        projectId,
+        user1.address,
+        nbrCoupons
+      )
       const [couponIds, values] = await couponNFT.getCouponsByProject(1)
 
-      expect(couponIds.length).to.equal(3)
-      expect(values.length).to.equal(3)
+      expect(couponIds.length).to.equal(nbrCoupons)
+      expect(values.length).to.equal(nbrCoupons)
 
-      expect(values[0]).to.equal(100)
-      expect(values[1]).to.equal(200)
-      expect(values[2]).to.equal(300)
+      expect(values[0]).to.equal(couponValue)
+      expect(values[1]).to.equal(couponValue)
+      expect(values[2]).to.equal(couponValue)
     })
   })
 })

@@ -66,26 +66,19 @@ describe("VeraToken", function () {
       )
     })
     it("should transfer tokens from contract to recipient when balance is sufficient", async function () {
-      // Check initial balances
       const initialContractBalance = await token.balanceOf(token.target)
       const initialAddr1Balance = await token.balanceOf(addr1.address)
-
-      // Amount to send
       const amount = 500
 
-      // Send tokens
       await token.sendTokens(addr1.address, amount)
 
-      // Check balances after transfer
       const finalContractBalance = await token.balanceOf(token.target)
       const finalAddr1Balance = await token.balanceOf(addr1.address)
 
-      // Verify the contract's balance is reduced by the amount
       expect(finalContractBalance).to.equal(
         initialContractBalance - BigInt(amount)
       )
 
-      // Verify the recipient's balance is increased by the amount
       expect(finalAddr1Balance).to.equal(initialAddr1Balance + BigInt(amount))
     })
   })
