@@ -117,6 +117,26 @@ const config = {
         "type": "error"
       },
       {
+        "inputs": [],
+        "name": "FailedTransfer",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "InsuffisiantBalance",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "NonexistentCoupon",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "NotCouponOwner",
+        "type": "error"
+      },
+      {
         "inputs": [
           {
             "internalType": "address",
@@ -205,6 +225,56 @@ const config = {
           }
         ],
         "name": "BatchMetadataUpdate",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "projectId",
+            "type": "uint256"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "redeemer",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "CouponRedeemed",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "EtherWithdrawn",
         "type": "event"
       },
       {
@@ -317,14 +387,19 @@ const config = {
             "internalType": "address",
             "name": "receiver",
             "type": "address"
-          }
-        ],
-        "name": "createCoupon",
-        "outputs": [
+          },
           {
             "internalType": "uint256",
-            "name": "",
+            "name": "numberOfCoupons",
             "type": "uint256"
+          }
+        ],
+        "name": "createCoupons",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "",
+            "type": "uint256[]"
           }
         ],
         "stateMutability": "nonpayable",
@@ -656,6 +731,13 @@ const config = {
           }
         ],
         "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "withdrawEther",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1136,17 +1218,160 @@ const config = {
       },
       {
         "inputs": [],
-        "name": "DonationMustBeGreaterThanZero",
+        "name": "AlreadyApproved",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "entity",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          }
+        ],
+        "name": "AlreadyExists",
         "type": "error"
       },
       {
         "inputs": [],
-        "name": "DonatorAlreadyRegistered",
+        "name": "AlreadyVoted",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "entity",
+            "type": "string"
+          }
+        ],
+        "name": "DoesNotExists",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "DonationAfterProjectCreation",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "DonationMustBeGreaterThanZero",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "balance",
+            "type": "uint256"
+          }
+        ],
+        "name": "InsufficientBalance",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_address",
+            "type": "address"
+          }
+        ],
+        "name": "InvalidAddress",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "provided",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "min",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "max",
+            "type": "uint256"
+          }
+        ],
+        "name": "InvalidAmount",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "divisor",
+            "type": "uint256"
+          }
+        ],
+        "name": "InvalidDivisibility",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "InvalidOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "parameter",
+            "type": "string"
+          }
+        ],
+        "name": "InvalidParameters",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "projectId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum Chain4Good.ProjectStatus",
+            "name": "currentStatus",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum Chain4Good.ProjectStatus",
+            "name": "requiredStatus",
+            "type": "uint8"
+          }
+        ],
+        "name": "InvalidProjectStatus",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "NotEligibleToVote",
         "type": "error"
       },
       {
         "inputs": [],
         "name": "NotValidAddress",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "OutOfBond",
         "type": "error"
       },
       {
@@ -1173,7 +1398,33 @@ const config = {
       },
       {
         "inputs": [],
+        "name": "ReentrancyGuardReentrantCall",
+        "type": "error"
+      },
+      {
+        "inputs": [],
         "name": "SendAmountFailed",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "projectId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "currentBlock",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endBlock",
+            "type": "uint256"
+          }
+        ],
+        "name": "VotingPeriodNotEnded",
         "type": "error"
       },
       {
@@ -1490,7 +1741,12 @@ const config = {
           },
           {
             "internalType": "address",
-            "name": "_receiver",
+            "name": "_ong",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_partner",
             "type": "address"
           }
         ],
@@ -1550,7 +1806,18 @@ const config = {
         "type": "function"
       },
       {
-        "inputs": [],
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "start",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "limit",
+            "type": "uint256"
+          }
+        ],
         "name": "getAllAssociations",
         "outputs": [
           {
@@ -1580,7 +1847,18 @@ const config = {
         "type": "function"
       },
       {
-        "inputs": [],
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "start",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "limit",
+            "type": "uint256"
+          }
+        ],
         "name": "getAllProjects",
         "outputs": [
           {
@@ -1592,7 +1870,12 @@ const config = {
             "components": [
               {
                 "internalType": "address",
-                "name": "receiver",
+                "name": "ong",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "partner",
                 "type": "address"
               },
               {
@@ -1614,11 +1897,6 @@ const config = {
                 "internalType": "uint256",
                 "name": "startBlock",
                 "type": "uint256"
-              },
-              {
-                "internalType": "uint256[]",
-                "name": "coupons",
-                "type": "uint256[]"
               },
               {
                 "internalType": "bool",
@@ -1725,7 +2003,12 @@ const config = {
             "components": [
               {
                 "internalType": "address",
-                "name": "receiver",
+                "name": "ong",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "partner",
                 "type": "address"
               },
               {
@@ -1747,11 +2030,6 @@ const config = {
                 "internalType": "uint256",
                 "name": "startBlock",
                 "type": "uint256"
-              },
-              {
-                "internalType": "uint256[]",
-                "name": "coupons",
-                "type": "uint256[]"
               },
               {
                 "internalType": "bool",
@@ -1840,7 +2118,12 @@ const config = {
         "outputs": [
           {
             "internalType": "address",
-            "name": "receiver",
+            "name": "ong",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "partner",
             "type": "address"
           },
           {
@@ -2008,9 +2291,9 @@ const config = {
         "name": "votingDelay",
         "outputs": [
           {
-            "internalType": "uint48",
+            "internalType": "uint256",
             "name": "",
-            "type": "uint48"
+            "type": "uint256"
           }
         ],
         "stateMutability": "view",

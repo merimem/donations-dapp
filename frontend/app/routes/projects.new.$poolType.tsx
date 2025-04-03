@@ -67,6 +67,7 @@ export default function Create() {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [targetAmount, setTargetAmount] = useState("")
+  const [partnerAddress, setPartnerAddress] = useState<string>("0x")
   const [selectedAssociation, setSelectedAssociation] =
     useState<`0x${string}`>("0x")
   const fetcher = useFetcher<ActionData>()
@@ -82,6 +83,7 @@ export default function Create() {
     address: config.Chain4Good.address,
     abi: config.Chain4Good.abi,
     functionName: "getAllAssociations",
+    args: [BigInt(0), BigInt(100)],
   })
   const [associations, addresses] = associationsData || [[], []]
   const mergedTable = associations.map((association, index) => ({
@@ -140,6 +142,7 @@ export default function Create() {
           Number(poolValue)!,
           parseEther(targetAmount),
           selectedAssociation,
+          partnerAddress,
         ],
       })
 
@@ -196,6 +199,18 @@ export default function Create() {
                 placeholder=""
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
+                required
+              />
+              <label className="fieldset-label" htmlFor="partner">
+                Partner Addres (the one who will receive the amount)
+              </label>
+              <input
+                type="text"
+                className="input"
+                name="partner"
+                placeholder=""
+                value={partnerAddress}
+                onChange={(e) => setPartnerAddress(e.target.value)}
                 required
               />
               <label className="fieldset-label" htmlFor="targetAmount">

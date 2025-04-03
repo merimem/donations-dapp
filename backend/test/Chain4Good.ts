@@ -14,6 +14,7 @@ describe("DonationPools", function () {
   let donor: HardhatEthersSigner
   let addr1: HardhatEthersSigner
   let addr2: HardhatEthersSigner
+  let partner: HardhatEthersSigner
   let association: HardhatEthersSigner
   let donationAmount: bigint
 
@@ -55,7 +56,8 @@ describe("DonationPools", function () {
   }
 
   async function deployAllFixtures() {
-    const [owner, donor, association, addr1, addr2] = await ethers.getSigners()
+    const [owner, donor, association, partner, addr1, addr2] =
+      await ethers.getSigners()
     veraTokenContract = await deployVeraFixture(owner)
     couponNFTContract = await deployCouponNFTFixture(owner)
     donationPoolsContract = await deployDonationPoolsFixture(
@@ -73,6 +75,7 @@ describe("DonationPools", function () {
       addr1,
       addr2,
       association,
+      partner,
     }
   }
 
@@ -111,7 +114,7 @@ describe("DonationPools", function () {
           tokenRewardRate,
           quorum
         )
-      ).to.be.revertedWith("Invalid VERA token address")
+      ).to.be.revertedWithCustomError(DonationPools, "InvalidAddress")
     })
 
     it("Should revert with 'Invalid CouponNFT address' if address is zero", async function () {
@@ -125,7 +128,7 @@ describe("DonationPools", function () {
           tokenRewardRate,
           quorum
         )
-      ).to.be.revertedWith("Invalid CouponNFT address")
+      ).to.be.revertedWithCustomError(DonationPools, "InvalidAddress")
     })
 
     it("Should revert if voting delay is zero", async function () {
@@ -133,14 +136,8 @@ describe("DonationPools", function () {
       const veraToken = await deployVeraFixture(owner)
       const couponNFT = await deployCouponNFTFixture(owner)
       await expect(
-        DonationPools.deploy(
-          veraToken,
-          couponNFT,
-          0, // Invalid voting delay
-          5,
-          50
-        )
-      ).to.be.revertedWith("Voting delay must be greater than zero")
+        DonationPools.deploy(veraToken, couponNFT, 0, 5, 50)
+      ).to.be.revertedWithCustomError(DonationPools, "InvalidParameters")
     })
     it("Should revert if voting delay is zero", async function () {
       const DonationPools = await ethers.getContractFactory("Chain4Good")
@@ -149,7 +146,7 @@ describe("DonationPools", function () {
 
       await expect(
         DonationPools.deploy(veraToken, couponNFT, 10, 0, 50)
-      ).to.be.revertedWith("Token reward rate must be greater than zero")
+      ).to.be.revertedWithCustomError(DonationPools, "InvalidParameters")
     })
     it("Should revert if quorum is zero", async function () {
       const DonationPools = await ethers.getContractFactory("Chain4Good")
@@ -158,7 +155,7 @@ describe("DonationPools", function () {
 
       await expect(
         DonationPools.deploy(veraToken, couponNFT, 10, 10, 0)
-      ).to.be.revertedWith("Quorum must be between 1 and 100")
+      ).to.be.revertedWithCustomError(DonationPools, "InvalidParameters")
     })
   })
 
@@ -435,6 +432,7 @@ describe("DonationPools", function () {
       addr1 = fixtures.addr1
       addr2 = fixtures.addr2
       donor = fixtures.donor
+      partner = fixtures.partner
       await veraTokenContract.transferOwnership(
         await donationPoolsContract.getAddress()
       )
@@ -449,22 +447,27 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("0.1"),
-          randomAddress
+          randomAddress,
+          partner
         )
       const project = await donationPoolsContract.projects(projectId)
       expect(project.amountRequired).to.equal(ethers.parseEther("0.1"))
       expect(project.status).to.equal(0)
-      expect(project.receiver).to.equal(randomAddress)
+      expect(project.ong).to.equal(randomAddress)
+      expect(project.partner).to.equal(partner)
     })
 
     it("Should return all project IDs and project details", async function () {
       const projectId1 = faker.number.bigInt()
       const projectId2 = faker.number.bigInt()
+      const amount1 = ethers.parseEther("0.1")
+      const amount2 = ethers.parseEther("0.2")
       const tx0 = await donationPoolsContract.createProject(
         projectId1,
         poolType,
-        ethers.parseEther("0.1"),
-        randomAddress
+        amount1,
+        randomAddress,
+        partner
       )
       const receipt0 = await tx0.wait()
       const blockNumber0 = receipt0 && receipt0.blockNumber
@@ -473,36 +476,45 @@ describe("DonationPools", function () {
         projectId2,
         poolType,
         ethers.parseEther("0.2"),
-        randomAddress
+        randomAddress,
+        partner
       )
       const receipt1 = await tx1.wait()
       const blockNumber1 = receipt1 && receipt1.blockNumber
 
-      const [projectIds, projects] =
-        await donationPoolsContract.getAllProjects()
-
+      const [projectIds, projects] = await donationPoolsContract.getAllProjects(
+        0,
+        10
+      )
       expect(projectIds.length).to.equal(2)
       expect(projects.length).to.equal(2)
-
+      const expectedArray1 = [
+        randomAddress,
+        partner.address,
+        amount1,
+        0,
+        0,
+        blockNumber0,
+        false,
+        poolType,
+        0,
+      ]
+      const expectedArray2 = [
+        randomAddress,
+        partner.address,
+        amount2,
+        0,
+        0,
+        blockNumber1,
+        false,
+        poolType,
+        0,
+      ]
       expect(projectIds[0]).to.equal(projectId1)
-      expect(projects[0][1]).to.equal(ethers.parseEther("0.1"))
-      expect(projects[0][0]).to.equal(randomAddress)
-      expect(projects[0][2]).to.equal(0)
-      expect(projects[0][3]).to.equal(0)
-      expect(projects[0][4]).to.equal(blockNumber0)
-      expect(projects[0][6]).to.equal(false)
-      expect(projects[0][7]).to.equal(poolType)
-      expect(projects[0][8]).to.equal(0)
+      expect(projects[0]).to.deep.equal(expectedArray1)
+      expect(projects[1]).to.deep.equal(expectedArray2)
 
       expect(projectIds[1]).to.equal(projectId2)
-      expect(projects[1][1]).to.equal(ethers.parseEther("0.2"))
-      expect(projects[1][0]).to.equal(randomAddress)
-      expect(projects[1][2]).to.equal(0)
-      expect(projects[1][3]).to.equal(0)
-      expect(projects[1][4]).to.equal(blockNumber1)
-      expect(projects[0][6]).to.equal(false)
-      expect(projects[1][7]).to.equal(poolType)
-      expect(projects[0][8]).to.equal(0)
     })
 
     it("should revert if amountRequired is more than pool balance", async function () {
@@ -511,9 +523,10 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("10"),
-          randomAddress
+          randomAddress,
+          partner
         )
-      ).to.be.revertedWith("Amount must be less or equal to pool balance")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "InvalidAmount")
     })
 
     it("should revert if amountRequired is zero", async function () {
@@ -522,9 +535,10 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           0,
-          randomAddress
+          randomAddress,
+          partner
         )
-      ).to.be.revertedWith("Amount must be greater than zero")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "InvalidAmount")
     })
 
     it("should revert if receiver address is invalid", async function () {
@@ -533,9 +547,10 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("1"),
-          ethers.ZeroAddress
+          ethers.ZeroAddress,
+          partner
         )
-      ).to.be.revertedWith("Invalid receiver address")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "InvalidAddress")
     })
 
     it("Should allow owner to change project status", async function () {
@@ -543,7 +558,8 @@ describe("DonationPools", function () {
         projectId,
         poolType,
         ethers.parseEther("0.1"),
-        randomAddress
+        randomAddress,
+        partner
       )
 
       await donationPoolsContract.changeProjectStatus(0, 1)
@@ -557,7 +573,8 @@ describe("DonationPools", function () {
         projectId,
         poolType,
         ethers.parseEther("0.1"),
-        randomAddress
+        randomAddress,
+        partner
       )
 
       await expect(
@@ -639,19 +656,19 @@ describe("DonationPools", function () {
       )
       await expect(
         donationPoolsContract.registerAssociation("Red", addr1.getAddress())
-      ).to.be.revertedWith("Association already exists")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "AlreadyExists")
     })
 
     it("Should revert if approving a non-existent association", async function () {
       await expect(
         donationPoolsContract.approveAssociation(addr1.getAddress())
-      ).to.be.revertedWith("Association does not exist")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "DoesNotExists")
     })
 
     it("Should revert if rejecting a non-existent association", async function () {
       await expect(
         donationPoolsContract.rejectAssociation(addr1.getAddress())
-      ).to.be.revertedWith("Association does not exist")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "DoesNotExists")
     })
 
     it("Should get association details successfully", async function () {
@@ -664,14 +681,14 @@ describe("DonationPools", function () {
         await addr1.getAddress()
       )
 
-      expect(association[0]).to.equal("Red Cross") // Name
-      expect(association[1]).to.be.false // Approval status
+      expect(association[0]).to.equal("Red Cross")
+      expect(association[1]).to.be.false
     })
 
     it("Should revert when fetching a non-existent association", async function () {
       await expect(
         donationPoolsContract.getAssociation(await addr1.getAddress())
-      ).to.be.revertedWith("Association does not exist")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "DoesNotExists")
     })
 
     it("Should return all registered associations with addresses ", async function () {
@@ -685,7 +702,7 @@ describe("DonationPools", function () {
       )
 
       const [allAssociations, allAddresses] =
-        await donationPoolsContract.getAllAssociations()
+        await donationPoolsContract.getAllAssociations(0, 10)
       await expect(allAssociations.length).to.equal(2)
       await expect(allAssociations[0].name).to.equal("Red Cross")
       await expect(allAddresses[0]).to.equal(await addr1.getAddress())
@@ -707,6 +724,7 @@ describe("DonationPools", function () {
       addr1 = fixtures.addr1
       addr2 = fixtures.addr2
       donor = fixtures.donor
+      partner = fixtures.partner
       await veraTokenContract.transferOwnership(
         await donationPoolsContract.getAddress()
       )
@@ -718,26 +736,27 @@ describe("DonationPools", function () {
         projectId,
         poolType,
         ethers.parseEther("1"),
-        randomAddress
+        randomAddress,
+        partner
       )
     })
     it("Should revert if a donor tries to vote twice on the same project", async function () {
       await donationPoolsContract.connect(donor).voteOnProject(projectId, false)
       await expect(
         donationPoolsContract.connect(donor).voteOnProject(projectId, true)
-      ).to.be.revertedWith("Donor has already voted")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "AlreadyVoted")
     })
 
     it("Should revert if a non-registered user tries to vote", async function () {
       await expect(
         donationPoolsContract.connect(addr1).voteOnProject(1, true)
-      ).to.be.revertedWith("Only registered donors can vote")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "InvalidOwner")
     })
 
     it("Should revert if trying to vote on a non-existing project", async function () {
       await expect(
         donationPoolsContract.connect(donor).voteOnProject(99, true)
-      ).to.be.revertedWith("Project does not exist")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "DoesNotExists")
     })
 
     it("Should allow voting only if donation was before project creation", async function () {
@@ -751,7 +770,10 @@ describe("DonationPools", function () {
 
       await expect(
         donationPoolsContract.connect(addr1).voteOnProject(projectId, true)
-      ).to.be.revertedWith("Donation should be done before project creation")
+      ).to.be.revertedWithCustomError(
+        donationPoolsContract,
+        "DonationAfterProjectCreation"
+      )
     })
 
     it("Should allow voting only if donor contributed to the specific pool", async function () {
@@ -761,11 +783,14 @@ describe("DonationPools", function () {
         .donate(2, { value: ethers.parseEther("20") })
       await donationPoolsContract
         .connect(owner)
-        .createProject(2, 2, ethers.parseEther("1"), randomAddress)
+        .createProject(2, 2, ethers.parseEther("1"), randomAddress, partner)
 
       await expect(
         donationPoolsContract.connect(donor).voteOnProject(2, true)
-      ).to.be.revertedWith("You must donate to the relevant pool before voting")
+      ).to.be.revertedWithCustomError(
+        donationPoolsContract,
+        "NotEligibleToVote"
+      )
     })
 
     it("Should allow a registered donor to vote 'yes' on a project", async function () {
@@ -827,7 +852,7 @@ describe("DonationPools", function () {
 
       await donationPoolsContract
         .connect(owner)
-        .createProject(projectId, poolId, targetAmount, randomAddress)
+        .createProject(projectId, poolId, targetAmount, randomAddress, partner)
     })
 
     it("should revert if finallizeVotes called by non-owner", async function () {
@@ -843,13 +868,16 @@ describe("DonationPools", function () {
     it("should revert if the project does not exist", async function () {
       await expect(
         donationPoolsContract.connect(owner).finallizeVotes(99)
-      ).to.be.revertedWith("Project does not exist")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "DoesNotExists")
     })
 
     it("should revert if the voting period is not yet ended", async function () {
       await expect(
         donationPoolsContract.connect(owner).finallizeVotes(projectId)
-      ).to.be.revertedWith("Voting period not yet ended")
+      ).to.be.revertedWithCustomError(
+        donationPoolsContract,
+        "VotingPeriodNotEnded"
+      )
     })
 
     it("should approve the project if yesVotes > noVotes", async function () {
@@ -919,7 +947,8 @@ describe("DonationPools", function () {
           projectId,
           0,
           ethers.parseEther("2"),
-          association.getAddress()
+          association.getAddress(),
+          partner
         )
       await donationPoolsContract.connect(donor).voteOnProject(projectId, true)
       await moveBlocks(votingDelay)
@@ -940,9 +969,6 @@ describe("DonationPools", function () {
         .to.emit(donationPoolsContract, "CouponsCreated")
         .withArgs(projectId, 2)
 
-      const projectDetails = await donationPoolsContract.getProject(projectId)
-      expect(projectDetails.coupons.length).to.equal(2)
-
       const finalBalance = await ethers.provider.getBalance(
         couponNFTContract.target
       )
@@ -957,7 +983,10 @@ describe("DonationPools", function () {
         donationPoolsContract
           .connect(association)
           .createCoupons(projectId, invalidCouponValue)
-      ).to.be.revertedWith("TargetAmount not divisible by couponValue")
+      ).to.be.revertedWithCustomError(
+        donationPoolsContract,
+        "InvalidDivisibility"
+      )
     })
 
     it("Should revert if project is not approved", async function () {
@@ -965,7 +994,10 @@ describe("DonationPools", function () {
 
       await expect(
         donationPoolsContract.connect(association).createCoupons(2, couponValue)
-      ).to.be.revertedWith("Project has not succeeded")
+      ).to.be.revertedWithCustomError(
+        donationPoolsContract,
+        "InvalidProjectStatus"
+      )
     })
 
     it("Should revert if caller is not the receiver", async function () {
@@ -976,7 +1008,7 @@ describe("DonationPools", function () {
         donationPoolsContract
           .connect(addr1)
           .createCoupons(projectId, couponValue)
-      ).to.be.revertedWith("You are not the receiver of this project")
+      ).to.be.revertedWithCustomError(donationPoolsContract, "InvalidOwner")
     })
   })
 })

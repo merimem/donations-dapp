@@ -154,7 +154,7 @@ export default function ProjectComponent() {
         {userType === UserType.Association && (
           <ReclaimFundsForm projectId={projectId} />
         )}
-        {userType === UserType.Association && <Coupons projectId={projectId} />}
+        {<Coupons projectId={projectId} />}
       </div>
     </div>
   )
