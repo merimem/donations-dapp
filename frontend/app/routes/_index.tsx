@@ -1,5 +1,5 @@
 import type { MetaFunction } from "@remix-run/node"
-import Globe from "~/components/layout/Globe"
+// import Globe from "~/components/layout/Globe"
 import PoolsCards from "~/components/pools/PoolsCards"
 
 export const meta: MetaFunction = () => {
@@ -13,7 +13,7 @@ export default function Index() {
   return (
     <nav className="flex flex-col gap-4 mby-4">
       {/* <div className="relative w-[400px] h-[200px]"> */}
-      <Globe />
+      {/* <Globe /> */}
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl">
         <p className="font-title relative z-2 mx-auto text-6xl leading-none font-black">
           Strengthening healthcare access
