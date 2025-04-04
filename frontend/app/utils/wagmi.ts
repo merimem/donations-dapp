@@ -15,6 +15,7 @@ export const config = getDefaultConfig({
   chains: [sepolia],
   transports: {
     [sepolia.id]: http(
+      //should be in env
       "https://eth-sepolia.g.alchemy.com/v2/LjyUqVTQ5d8pBgPvLEUujMxnxoSJIj3M"
     ),
   },

@@ -44,5 +44,5 @@ export default defineConfig({
     tsconfigPaths(),
   ],
 
-  // build: { modulePreload: { polyfill: true } },
+  build: { modulePreload: { polyfill: true } },
 })
