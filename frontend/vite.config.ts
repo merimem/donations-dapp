@@ -43,11 +43,6 @@ export default defineConfig({
     },
     tsconfigPaths(),
   ],
-  resolve: {
-    alias: {
-      "@vanilla-extract/sprinkles/createUtils":
-        "@vanilla-extract/sprinkles/createUtils/index.js",
-    },
-  },
+
   // build: { modulePreload: { polyfill: true } },
 })
