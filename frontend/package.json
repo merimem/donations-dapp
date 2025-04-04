@@ -3,7 +3,7 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "scripts": {
     "build": "remix vite:build",
     "dev": "node ./server.js",
