@@ -1,7 +1,15 @@
 {
-  "build": {
-    "env": {
-      "NODE_OPTIONS": "--max-old-space-size=4096"
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/server.js",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    }
+  ]
 }
