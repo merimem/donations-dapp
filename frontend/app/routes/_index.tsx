@@ -1,5 +1,5 @@
 import type { MetaFunction } from "@remix-run/node"
-import Globe from "~/components/layout/Globe"
+// import Globe from "~/components/layout/Globe"
 import PoolsCards from "~/components/pools/PoolsCards"
 import AfricaMap from "../../../public/AfricaMap.jpg"
 
