@@ -14,7 +14,7 @@ export default function Index() {
   return (
     <nav className="flex flex-col gap-4 mby-4">
       {/* <div className="relative w-[400px] h-[200px]"> */}
-      <img src="/AfricaMap.jpg" />
+      {/* <img src="/AfricaMap.jpg" />
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl">
         <p className="font-title relative z-2 mx-auto text-6xl leading-none font-black">
           Strengthening healthcare access
@@ -22,7 +22,7 @@ export default function Index() {
             in West Africa through the power of donation.
           </span>
         </p>
-      </div>
+      </div> */}
       {/* </div> * */}
 
       {/* <Hero
