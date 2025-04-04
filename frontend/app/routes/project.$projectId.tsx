@@ -17,28 +17,11 @@ import FinnalizeVote from "~/components/project/voting/FinnalizeVote"
 import ReclaimFundsForm from "~/components/project/voting/ReclaimFundsForm"
 import VoteForm from "~/components/project/voting/VoteForProject"
 import config from "~/config/contract"
-import { getProjectByprojectId } from "~/modules/projects/project.server"
 import { Project, ProjectStatus } from "~/modules/projects/project.typedefs"
 import { UserType } from "~/modules/users/users.typedefs"
 import { publicClient } from "~/utils/client"
 
-type LoaderData = {
-  project: Project
-}
-
-export const loader: LoaderFunction = async ({ params }) => {
-  const { projectId } = params
-  if (!projectId) {
-    throw new Error("Project not found")
-  }
-
-  const project = await getProjectByprojectId({ projectId })
-
-  return { project }
-}
-
 export default function ProjectComponent() {
-  const { project: projectDB } = useLoaderData<LoaderData>() as LoaderData
   const { address } = useAccount()
   const params = useParams()
   const [userType, setUserType] = useState<string | null>()
@@ -121,8 +104,8 @@ export default function ProjectComponent() {
           <p>Error</p>
         ) : projectContract ? (
           <div className="card-body">
-            <h2 className="card-title text-2xl font-bold">{projectDB.title}</h2>
-            <p>{projectDB.description}</p>
+            {/* <h2 className="card-title text-2xl font-bold">{projectDB.title}</h2>
+            <p>{projectDB.description}</p> */}
           </div>
         ) : null}
         {projectContract && (

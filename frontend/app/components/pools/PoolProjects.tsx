@@ -5,8 +5,8 @@ import { ROUTES } from "~/utils/routes/routes.constants"
 import { Link } from "@remix-run/react"
 
 interface PoolProjectsProps {
-  poolType: string
-  projects: Project[]
+  poolType: number
+  projects: any[]
 }
 
 const PoolProjects = ({ poolType, projects }: PoolProjectsProps) => {
@@ -19,15 +19,14 @@ const PoolProjects = ({ poolType, projects }: PoolProjectsProps) => {
       <div className="badge badge-warning badge-xl">Projects</div>
       <p className="mt-4 text-base-content/70">Projects related to this pool</p>
       <div className="grid gap-4 grid-cols-4 my-4">
-        {poolProjects.map((project) => {
+        {poolProjects.map((project, i) => {
           return (
-            <Link
-              to={`${ROUTES.PROJECT}${project.projectId}`}
-              key={project.projectId}
-            >
+            <Link to={`${ROUTES.PROJECT}${project.id}`} key={project.id}>
               <Card
-                title={project.title}
-                description={<p className="truncate">{project.description}</p>}
+                title={`Project${i}`}
+                description={
+                  <p className="truncate">{project.amountRequired}</p>
+                }
                 className="max-w-64 hover:scale-105 cursor-pointer bg-base-100 border-gray-200 border-4"
               />
             </Link>

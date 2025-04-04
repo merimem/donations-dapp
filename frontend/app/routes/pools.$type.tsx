@@ -17,7 +17,6 @@ import PoolProjects from "~/components/pools/PoolProjects"
 import config from "~/config/contract"
 import { poolDescriptions, poolTitles } from "~/modules/pools/pools.constants"
 import { PoolType } from "~/modules/pools/pools.typedefs"
-import { getAllProjects } from "~/modules/projects/project.server"
 import { Project } from "~/modules/projects/project.typedefs"
 import { UserType } from "~/modules/users/users.typedefs"
 
@@ -28,18 +27,26 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-type LoaderData = {
-  projects: Project[]
-}
-
-export const loader = async () => {
-  const projects = await getAllProjects()
-
-  return { projects }
-}
-
 export default function Connect() {
-  const { projects } = useLoaderData() as LoaderData
+  const {
+    data: projects,
+    isPending,
+    error,
+  } = useReadContract({
+    address: config.Chain4Good.address,
+    abi: config.Chain4Good.abi,
+    functionName: "getAllProjects",
+    args: [BigInt(0), BigInt(100)],
+  })
+  const mergedArray =
+    projects &&
+    projects[0].map((item, index) => {
+      return {
+        id: projects[0][index],
+        ...projects[1][index],
+      }
+    })
+
   const params = useParams<{ type: string }>()
   const navigate = useNavigate()
   const [userType, setUserType] = useState<string | null>()
@@ -113,7 +120,9 @@ export default function Connect() {
           </div>
         </article>
       </div>
-      {type && <PoolProjects poolType={type} projects={projects} />}
+      {type && projects && (
+        <PoolProjects poolType={value} projects={mergedArray} />
+      )}
     </div>
   )
 }

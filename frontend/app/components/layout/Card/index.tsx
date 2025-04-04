@@ -4,8 +4,8 @@ import { ReactNode } from "react"
 interface CardProps {
   imageUrl?: string
   textBtn?: string
-  title: string
-  description: ReactNode
+  title?: string
+  description?: ReactNode
   className?: string
   imageClassName?: string
   onClick?: () => void

@@ -1,4 +1,3 @@
-import { ActionFunction } from "@remix-run/node"
 import {
   Form,
   MetaFunction,
@@ -16,7 +15,6 @@ import {
 import Loading from "~/components/layout/Loading"
 import config from "~/config/contract"
 import { PoolType } from "~/modules/pools/pools.typedefs"
-import { createProject } from "~/modules/projects/project.server"
 
 export type ActionData = {
   success: boolean
@@ -30,35 +28,35 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const data = {
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
-    targetAmount: formData.get("targetAmount") as string,
-    projectId: formData.get("projectId") as string,
-    poolType: formData.get("poolType") as string,
-  }
-  try {
-    return createProject({
-      project: {
-        ...data,
-        targetAmount: parseFloat(data.targetAmount),
-      },
-    }).then(async () => {
-      return Response.json({
-        success: true,
-        error: false,
-      })
-    })
-  } catch (error) {
-    console.log("error", error)
-    return Response.json({
-      success: false,
-      error: true,
-    })
-  }
-}
+// export const action: ActionFunction = async ({ request }) => {
+//   const formData = await request.formData()
+//   const data = {
+//     title: formData.get("title") as string,
+//     description: formData.get("description") as string,
+//     targetAmount: formData.get("targetAmount") as string,
+//     projectId: formData.get("projectId") as string,
+//     poolType: formData.get("poolType") as string,
+//   }
+//   try {
+//     return createProject({
+//       project: {
+//         ...data,
+//         targetAmount: parseFloat(data.targetAmount),
+//       },
+//     }).then(async () => {
+//       return Response.json({
+//         success: true,
+//         error: false,
+//       })
+//     })
+//   } catch (error) {
+//     console.log("error", error)
+//     return Response.json({
+//       success: false,
+//       error: true,
+//     })
+//   }
+// }
 export const loader = async () => {
   return { address: null }
 }
@@ -146,10 +144,10 @@ export default function Create() {
         ],
       })
 
-      fetcher.submit(formData, {
-        method: "POST",
-        encType: "multipart/form-data",
-      })
+      // fetcher.submit(formData, {
+      //   method: "POST",
+      //   encType: "multipart/form-data",
+      // })
     } catch (error) {
       console.log(error)
     }
