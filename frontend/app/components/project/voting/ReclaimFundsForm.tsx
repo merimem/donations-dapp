@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { formatEther, parseEther } from "viem"
+import { parseEther } from "viem"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
 import config from "~/config/contract"
 

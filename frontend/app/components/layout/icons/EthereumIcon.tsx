@@ -1,5 +1,3 @@
-import React from "react"
-
 interface EthereumIconProps {
   className?: string
   isPink?: boolean

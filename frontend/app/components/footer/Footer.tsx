@@ -1,10 +1,8 @@
-import logo from "../../../public/logo.png"
-
 const Footer = () => {
   return (
     <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
       <aside>
-        <img alt="logo-footer" src={logo} className="w-16 h-16" />
+        <img alt="logo-footer" src="/logo.png" className="w-16 h-16" />
         <p>
           Chain4Good Ltd.
           <br />

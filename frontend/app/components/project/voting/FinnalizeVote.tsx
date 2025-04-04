@@ -1,4 +1,3 @@
-import React from "react"
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi"
 import config from "~/config/contract"
 interface FinnalizeVoteProps {

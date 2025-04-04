@@ -1,6 +1,5 @@
 import { Link } from "@remix-run/react"
 import React from "react"
-import logo from "../../../public/logo.png"
 import { useAccount } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { ROUTES } from "~/utils/routes/routes.constants"
@@ -50,7 +49,7 @@ const Navbar = () => {
           </ul>
         </div>
         <Link className="btn btn-ghost text-xl" to="/">
-          <img alt="logo-footer" src={logo} className="w-16 h-16" />
+          <img alt="logo-footer" src="/logo.png" className="w-16 h-16" />
           Chain4Good
         </Link>
       </div>

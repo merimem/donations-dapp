@@ -1,9 +1,5 @@
-import React, { useContext } from "react"
 import { formatEther } from "viem"
 import { PoolType } from "~/modules/pools/pools.typedefs"
-import { UserContext } from "../context/UserContext"
-import { UserType } from "~/modules/users/users.typedefs"
-import AssociationsRequest from "./AssociationsRequest"
 
 interface TableDonationsProps {
   contributions: bigint[]

@@ -1,8 +1,6 @@
-import { Project } from "~/modules/projects/project.typedefs"
-import Card from "../layout/Card"
-import Title from "../layout/title"
-import { ROUTES } from "~/utils/routes/routes.constants"
 import { Link } from "@remix-run/react"
+import { ROUTES } from "~/utils/routes/routes.constants"
+import Card from "../layout/Card"
 
 interface PoolProjectsProps {
   poolType: number

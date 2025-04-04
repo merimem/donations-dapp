@@ -1,7 +1,5 @@
-import { useContext } from "react"
 import { useReadContract } from "wagmi"
 import config from "~/config/contract"
-import { UserContext } from "../context/UserContext"
 import Loading from "../layout/Loading"
 import ActionsButton from "./ActionsButton"
 
