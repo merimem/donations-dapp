@@ -1,6 +1,16 @@
 import { ProjectStatus } from "@/modules/projects/project.typedefs"
 
-export const timelineProps = (projectContract) => {
+export const timelineProps = (projectContract: {
+  ong: `0x${string}`
+  partner: `0x${string}`
+  amountRequired: bigint
+  yesVotes: bigint
+  noVotes: bigint
+  startBlock: bigint
+  couponsHasBeenCreated: boolean
+  poolType: number
+  status: number
+}) => {
   const keys = Object.keys(ProjectStatus).filter((key) => isNaN(Number(key)))
   const projectStatus = projectContract?.status
   if (projectStatus === 0)
