@@ -4,6 +4,7 @@ pragma solidity 0.8.28;
 import "./VeraToken.sol";
 import "./CouponNFT.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title Chain4Good
