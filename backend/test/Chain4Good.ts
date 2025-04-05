@@ -1010,5 +1010,57 @@ describe("DonationPools", function () {
           .createCoupons(projectId, couponValue)
       ).to.be.revertedWithCustomError(donationPoolsContract, "InvalidOwner")
     })
+
+    // it("Should revert with SendAmountFailed if the call to couponNFT fails", async function () {
+    //   let chain4GoodContract: Chain4Good
+    //   const fixtures = await deployAllFixtures()
+    //   const roomPoolIndex = 0
+    //   const projectId = 1
+    //   association = fixtures.association
+    //   owner = fixtures.owner
+    //   donor = fixtures.donor
+    //   partner = fixtures.partner
+    //   chain4GoodContract = fixtures.donationPoolsContract
+    //   veraTokenContract = fixtures.veraTokenContract
+    //   couponNFTContract = fixtures.couponNFTContract
+    //   await veraTokenContract.transferOwnership(
+    //     await donationPoolsContract.getAddress()
+    //   )
+    //   await couponNFTContract.transferOwnership(
+    //     await donationPoolsContract.getAddress()
+    //   )
+    //   donationAmount = ethers.parseEther("2")
+    //   await chain4GoodContract
+    //     .connect(donor)
+    //     .donate(roomPoolIndex, { value: donationAmount })
+
+    //   await chain4GoodContract
+    //     .connect(owner)
+    //     .createProject(
+    //       projectId,
+    //       roomPoolIndex,
+    //       ethers.parseEther("2"),
+    //       association.getAddress(),
+    //       partner.getAddress()
+    //     )
+    //   const contractBalance = await ethers.provider.getBalance(
+    //     chain4GoodContract.target
+    //   )
+    //   console.log("contractBalance", contractBalance)
+    //   await chain4GoodContract.changeProjectStatus(projectId, 1)
+    //   const project = await chain4GoodContract.getProject(projectId)
+    //   console.log("project", project)
+
+    //   await chain4GoodContract
+    //     .connect(association)
+    //     .createCoupons(projectId, ethers.parseEther("1"))
+
+    //   await chain4GoodContract.changeProjectStatus(projectId, 1)
+    //   await expect(
+    //     chain4GoodContract
+    //       .connect(association)
+    //       .createCoupons(projectId, ethers.parseEther("1"))
+    //   ).to.be.revertedWithCustomError(chain4GoodContract, "SendAmountFailed")
+    // })
   })
 })

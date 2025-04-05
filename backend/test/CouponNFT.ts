@@ -194,4 +194,49 @@ describe("CouponNFT", function () {
       expect(values[2]).to.equal(couponValue)
     })
   })
+
+  describe("withdrawEther", function () {
+    it("should allow the owner to withdraw ETH", async () => {
+      const sendAmount = ethers.parseEther("1")
+
+      await owner.sendTransaction({
+        to: await couponNFT.getAddress(),
+        value: sendAmount,
+      })
+
+      const contractBalanceBefore = await ethers.provider.getBalance(
+        await couponNFT.getAddress()
+      )
+      expect(contractBalanceBefore).to.equal(sendAmount)
+
+      const ownerBalanceBefore = await ethers.provider.getBalance(owner.address)
+
+      const tx = await couponNFT.connect(owner).withdrawEther()
+      const receipt = await tx.wait()
+      const gasUsed = receipt.gasUsed * receipt.gasPrice!
+
+      const contractBalanceAfter = await ethers.provider.getBalance(
+        await couponNFT.getAddress()
+      )
+      expect(contractBalanceAfter).to.equal(0)
+
+      const ownerBalanceAfter = await ethers.provider.getBalance(owner.address)
+      const diff =
+        BigInt(ownerBalanceAfter) - BigInt(ownerBalanceBefore) + gasUsed
+      expect(diff).to.equal(sendAmount)
+    })
+
+    it("should revert if non-owner tries to withdraw", async () => {
+      await expect(
+        couponNFT.connect(user1).withdrawEther()
+      ).to.be.revertedWithCustomError(couponNFT, "OwnableUnauthorizedAccount")
+    })
+
+    it("should revert if contract has no balance", async () => {
+      await expect(couponNFT.withdrawEther()).to.be.revertedWithCustomError(
+        couponNFT,
+        "InsuffisiantBalance"
+      )
+    })
+  })
 })
