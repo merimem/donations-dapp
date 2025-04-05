@@ -141,7 +141,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
                 onClick={handleDonate}
                 disabled={isPending}
               >
-                Donate {amount === "custom" ? customAmount || 0 : amount}
+                Donate {amount}
                 <EthereumIcon isLight />
               </button>
             </div>
