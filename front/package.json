@@ -25,6 +25,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.175.0",
     "daisyui": "^5.0.12",
     "tailwindcss": "^4",
     "typescript": "^5"
