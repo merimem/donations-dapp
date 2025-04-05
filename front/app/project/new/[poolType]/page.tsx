@@ -11,15 +11,6 @@ import {
   useWriteContract,
 } from "wagmi"
 
-export type ActionData = {
-  success: boolean
-  error: boolean
-}
-
-export const loader = async () => {
-  return { address: null }
-}
-
 export default function Create() {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
