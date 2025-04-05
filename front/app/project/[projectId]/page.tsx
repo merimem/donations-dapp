@@ -7,7 +7,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi"
-import { UserContext } from "@/components/context/UserContext"
+
 import Loading from "@/components/layout/Loading"
 import Timeline from "@/components/layout/Timeline/Timeline"
 import { timelineProps } from "@/components/layout/Timeline/Timeline.utils"
@@ -21,6 +21,10 @@ import { publicClient } from "@/utils/client"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 
+type ProjectPageRouteParams = {
+  projectId: string
+}
+
 export default function ProjectComponent() {
   const { address } = useAccount()
   const [userType, setUserType] = useState<string | null>()
@@ -29,10 +33,8 @@ export default function ProjectComponent() {
     const userType = window.localStorage.getItem("userType")
     setUserType(userType)
   }, [])
-  const router = useParams()
+  const router = useParams<ProjectPageRouteParams>()
   const { projectId } = router
-  console.log("projectId", projectId)
-  //   if (!projectId || typeof userType !== "string") return null
 
   const {
     data: projectContract,
@@ -86,7 +88,7 @@ export default function ProjectComponent() {
       console.log(error)
     }
   }
-  if (!projectId || typeof userType !== "string") return null
+
   return (
     <div>
       <div className="flex gap-4 mb-4">

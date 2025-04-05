@@ -11,17 +11,19 @@ import {
   useWriteContract,
 } from "wagmi"
 
+type NewPoolPageRouteParams = {
+  poolType: string
+}
 export default function Create() {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [targetAmount, setTargetAmount] = useState("")
-  const [partnerAddress, setPartnerAddress] = useState<string>("0x")
-  const [selectedAssociation, setSelectedAssociation] =
-    useState<`0x${string}`>("0x")
+  const [partnerAddress, setPartnerAddress] = useState<string>("")
+  const [selectedAssociation, setSelectedAssociation] = useState<string>("")
 
-  const router = useParams()
+  const router = useParams<NewPoolPageRouteParams>()
   const { poolType } = router
-
+  //@ts-ignore
   const poolValue = PoolType[poolType!]
   const {
     data: associationsData,
@@ -56,7 +58,7 @@ export default function Create() {
     })
 
   const handleSelectAssociation = async (
-    e: React.FormEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setSelectedAssociation(e.target.value)
   }
@@ -76,6 +78,7 @@ export default function Create() {
           projectId,
           Number(poolValue)!,
           parseEther(targetAmount),
+          //@ts-ignore
           selectedAssociation,
           //@ts-ignore
           partnerAddress,
@@ -172,10 +175,7 @@ export default function Create() {
           <div>
             {errorContract && (
               <p className="text-error">
-                <div>
-                  Error editing contract:{" "}
-                  {errorContract?.shortMessage || errorContract.message}
-                </div>
+                <div>Error editing contract: {errorContract.message}</div>
               </p>
             )}
 
