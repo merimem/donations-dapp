@@ -9,7 +9,5 @@ import { sepolia } from "viem/chains"
 
 export const publicClient = createPublicClient({
   chain: sepolia,
-  transport: http(
-    "https://eth-sepolia.g.alchemy.com/v2/LjyUqVTQ5d8pBgPvLEUujMxnxoSJIj3M"
-  ),
+  transport: http(process.env.RPC_URL),
 })

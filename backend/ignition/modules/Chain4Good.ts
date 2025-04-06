@@ -1,10 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules"
-import {
-  QUORUM,
-  TOKEN_REWARD_RATE,
-  VERA_SUPPLY,
-  VOTING_DELAY,
-} from "../../utils/helpers"
+import { QUORUM, TOKEN_REWARD_RATE, VOTING_DELAY } from "../../utils/helpers"
 export default buildModule("DonationPoolsModule", (m) => {
   const owner = m.getAccount(0)
 
