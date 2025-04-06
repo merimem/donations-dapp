@@ -45,6 +45,7 @@ contract Chain4Good is Ownable, ReentrancyGuard {
         uint256 yesVotes;
         uint256 noVotes;
         uint256 startBlock;
+        string title;
         bool couponsHasBeenCreated;
         PoolType poolType;
         ProjectStatus status;
@@ -162,7 +163,7 @@ contract Chain4Good is Ownable, ReentrancyGuard {
     /// @param _amountRequired The amount requested for the project.
     /// @param _ong The address of the ong that manages the project.
     /// @param _partner The address receiving the funds if the project is approved.
-    function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired, address _ong, address _partner) onlyOwner() external  {
+    function createProject(uint256 _projectId, PoolType _poolType, uint256 _amountRequired, string calldata _title, address _ong, address _partner) onlyOwner() external  {
         require(_amountRequired > 0 && _amountRequired <= pools[_poolType].balance , InvalidAmount(_amountRequired, 1, pools[_poolType].balance));
         require(projects[_projectId].startBlock == 0, AlreadyExists("Project", _projectId));
         require(_ong != address(0), InvalidAddress(_ong));
@@ -174,6 +175,7 @@ contract Chain4Good is Ownable, ReentrancyGuard {
         projects[_projectId].ong = _ong;
         projects[_projectId].partner = _partner;
         projects[_projectId].startBlock = block.number;
+         projects[_projectId].title = _title;
         projectIds.push(_projectId); 
 
         emit ProjectCreated(_projectId, _poolType, _amountRequired);

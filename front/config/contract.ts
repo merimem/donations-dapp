@@ -262,6 +262,37 @@ const config = {
         "anonymous": false,
         "inputs": [
           {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "numberOfCoupons",
+            "type": "uint256"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "projectId",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "CouponsCreated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
             "indexed": true,
             "internalType": "address",
             "name": "owner",
@@ -1740,6 +1771,11 @@ const config = {
             "type": "uint256"
           },
           {
+            "internalType": "string",
+            "name": "_title",
+            "type": "string"
+          },
+          {
             "internalType": "address",
             "name": "_ong",
             "type": "address"
@@ -1899,6 +1935,11 @@ const config = {
                 "type": "uint256"
               },
               {
+                "internalType": "string",
+                "name": "title",
+                "type": "string"
+              },
+              {
                 "internalType": "bool",
                 "name": "couponsHasBeenCreated",
                 "type": "bool"
@@ -2032,6 +2073,11 @@ const config = {
                 "type": "uint256"
               },
               {
+                "internalType": "string",
+                "name": "title",
+                "type": "string"
+              },
+              {
                 "internalType": "bool",
                 "name": "couponsHasBeenCreated",
                 "type": "bool"
@@ -2145,6 +2191,11 @@ const config = {
             "internalType": "uint256",
             "name": "startBlock",
             "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
           },
           {
             "internalType": "bool",

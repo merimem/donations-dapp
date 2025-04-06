@@ -46,9 +46,7 @@ export default function Connect() {
         ...projects[1][index],
       }
     })
-  console.log("mergedArray", mergedArray)
-  console.log("projects", projects)
-  console.log("value", value)
+
   return (
     <div>
       <div className="flex gap-4 mb-4">

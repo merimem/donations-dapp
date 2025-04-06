@@ -28,22 +28,46 @@ describe("CouponNFT", function () {
 
   describe("createCoupon", function () {
     it("Should allow owner to create coupons", async function () {
-      const tx = await couponNFT.createCoupons(1000, 1, user1.address, 1)
+      const value = ethers.parseEther("1")
+      await owner.sendTransaction({ to: couponNFT.target, value })
+      const tx = await couponNFT.createCoupons(value, 1, user1.address, 1)
       await tx.wait()
 
       expect(await couponNFT.nextTokenId()).to.equal(1)
     })
     it("Should store correct coupon details", async function () {
-      await couponNFT.createCoupons(500, 2, user1.address, 1)
+      const amount = ethers.parseEther("1")
+      await owner.sendTransaction({ to: couponNFT.target, value: amount })
+      await couponNFT.createCoupons(amount, 2, user1.address, 1)
 
       const value = await couponNFT.getCouponValue(0, 2)
-      expect(value).to.equal(500)
+      expect(value).to.equal(amount)
     })
 
     it("Should prevent non-owner from creating a coupon", async function () {
+      const value = ethers.parseEther("1")
+      await owner.sendTransaction({ to: couponNFT.target, value })
       await expect(
         couponNFT.connect(user1).createCoupons(1000, 1, user2.address, 1)
       ).to.be.revertedWithCustomError(couponNFT, "OwnableUnauthorizedAccount")
+    })
+    it("should create coupons and assign them", async function () {
+      const value = ethers.parseEther("1")
+      await owner.sendTransaction({ to: couponNFT.target, value })
+      const projectId = 1
+      const numCoupons = 4
+
+      const tx = await couponNFT.createCoupons(
+        ethers.parseEther("0.25"),
+        projectId,
+        user1.address,
+        numCoupons
+      )
+      expect(tx).to.emit(couponNFT, "CouponsCreated")
+      await tx.wait()
+
+      const balance = await couponNFT.balanceOf(user1.address)
+      expect(balance).to.equal(numCoupons)
     })
   })
 
@@ -70,7 +94,9 @@ describe("CouponNFT", function () {
 
       expect(couponValue).to.equal(value)
 
-      await couponNFT.connect(user1).redeemCoupon(tokenId, projectId)
+      expect(
+        await couponNFT.connect(user1).redeemCoupon(tokenId, projectId)
+      ).to.emit(couponNFT, "CouponRedeemed")
 
       expect(
         couponNFT.getCouponValue(tokenId, projectId)
@@ -78,7 +104,10 @@ describe("CouponNFT", function () {
     })
 
     it("Should prevent non-owners from redeeming someone else's coupon", async function () {
-      await couponNFT.createCoupons(1000, projectId, user1.address, 1)
+      const value = ethers.parseEther("1")
+
+      await owner.sendTransaction({ to: couponNFT.target, value })
+      await couponNFT.createCoupons(value, projectId, user1.address, 1)
 
       await expect(
         couponNFT.connect(user2).redeemCoupon(0, projectId)
@@ -128,17 +157,16 @@ describe("CouponNFT", function () {
         user1.address
       )
 
-      expect(recipientBalanceAfter).to.be.above(recipientBalanceBefore) // ETH received
+      expect(recipientBalanceAfter).to.be.above(recipientBalanceBefore)
 
       const contractBalanceAfter = await ethers.provider.getBalance(
         couponNFT.target
       )
-      expect(contractBalanceAfter).to.equal(contractBalanceBefore - couponValue) // ETH deducted
+      expect(contractBalanceAfter).to.equal(contractBalanceBefore - couponValue)
     })
 
     it("Should burn the coupon after redeeming", async function () {
-      // Step 1: Fund the contract so it can transfer ETH
-      const initialFunding = ethers.parseEther("1") // 1 ETH
+      const initialFunding = ethers.parseEther("1")
       await owner.sendTransaction({
         to: couponNFT.target,
         value: initialFunding,
@@ -162,7 +190,7 @@ describe("CouponNFT", function () {
       expect(await couponNFT.ownerOf(tokenId)).to.equal(user1.address)
 
       await expect(couponNFT.connect(user1).redeemCoupon(tokenId, projectId))
-        .to.emit(couponNFT, "Transfer") // Check if NFT burn event is emitted
+        .to.emit(couponNFT, "Transfer")
         .withArgs(user1.address, ethers.ZeroAddress, tokenId)
 
       await expect(couponNFT.ownerOf(tokenId)).to.be.revertedWithCustomError(
@@ -174,6 +202,12 @@ describe("CouponNFT", function () {
 
   describe("getCouponsByProject", function () {
     it("should create coupons and retrieve them by projectId", async function () {
+      const initialFunding = ethers.parseEther("1")
+      await owner.sendTransaction({
+        to: couponNFT.target,
+        value: initialFunding,
+      })
+
       const projectId = 1
       const nbrCoupons = 3
       const couponValue = 100
@@ -212,6 +246,8 @@ describe("CouponNFT", function () {
 
       const tx = await couponNFT.connect(owner).withdrawEther()
       const receipt = await tx.wait()
+
+      //@ts-ignore
       const gasUsed = receipt.gasUsed * receipt.gasPrice!
 
       const contractBalanceAfter = await ethers.provider.getBalance(

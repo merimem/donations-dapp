@@ -1,11 +1,12 @@
-import React from "react"
-import { formatEther } from "viem"
+import React, { useEffect, useState } from "react"
+import { formatEther, parseAbiItem } from "viem"
 import {
   useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi"
 import config from "@/config/contract"
+import { publicClient } from "@/utils/client"
 
 const Coupon = ({ id, projectId }: { id: bigint; projectId: bigint }) => {
   const {
@@ -19,7 +20,6 @@ const Coupon = ({ id, projectId }: { id: bigint; projectId: bigint }) => {
     functionName: "getCouponValue",
     args: [id, projectId],
   })
-
   const {
     data: hash,
     error: errorContract,
@@ -31,6 +31,7 @@ const Coupon = ({ id, projectId }: { id: bigint; projectId: bigint }) => {
     useWaitForTransactionReceipt({
       hash,
     })
+
   const handleRedeem = async () => {
     try {
       await writeContract({

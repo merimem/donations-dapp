@@ -1,7 +1,7 @@
-import { useReadContract } from "wagmi"
-import config from "@/config/contract"
-import Coupon from "./Coupon"
 import Loading from "@/components/layout/Loading"
+import config from "@/config/contract"
+import { useReadContract } from "wagmi"
+import Coupon from "./Coupon"
 
 interface CouponsProps {
   projectId: string

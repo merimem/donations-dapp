@@ -6,13 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract CouponNFT is ERC721URIStorage, Ownable {
     uint256 public nextTokenId;
-    struct Coupon {
-        uint256 value;
-        uint256 id;
-    }
-    
     mapping(uint256 => mapping(uint256 => uint256)) private projectCoupons;
 
+    event CouponsCreated(uint256 numberOfCoupons, uint256 indexed projectId, address receiver, uint256 value);
     event CouponRedeemed(uint256 indexed tokenId, uint256 indexed projectId, address indexed redeemer, uint256 value);
     event EtherWithdrawn(address indexed owner, uint256 amount);
 
@@ -30,6 +26,9 @@ contract CouponNFT is ERC721URIStorage, Ownable {
         address receiver,
         uint256 numberOfCoupons
     ) external onlyOwner returns (uint256[] memory) {
+        uint256 totalCost = numberOfCoupons * value;
+        require(address(this).balance >= totalCost, InsuffisiantBalance());
+
         uint256[] memory createdTokenIds = new uint256[](numberOfCoupons);
         for (uint256 i = 0; i < numberOfCoupons; i++) {
             uint256 tokenId = nextTokenId++;
@@ -38,14 +37,17 @@ contract CouponNFT is ERC721URIStorage, Ownable {
             createdTokenIds[i] = tokenId;
         }
 
+        emit CouponsCreated(numberOfCoupons, projectId, receiver, value);
         return createdTokenIds;
+       
     }
 
     function redeemCoupon(uint256 tokenId, uint256 projectId) external {
         require(projectCoupons[projectId][tokenId] != 0, NonexistentCoupon());
         require(ownerOf(tokenId) == msg.sender, NotCouponOwner());
-
-        uint256 amount = projectCoupons[projectId][tokenId];
+         uint256 amount = projectCoupons[projectId][tokenId];
+        require(address(this).balance >= amount, InsuffisiantBalance());
+       
         projectCoupons[projectId][tokenId] = 0;
         _burn(tokenId);
 

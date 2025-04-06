@@ -22,7 +22,7 @@ describe("DonationPools", function () {
   const tokenRewardRate = 1
   const quorum = 50
   const randomAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-
+  const title = faker.string.sample()
   async function deployVeraFixture(owner: HardhatEthersSigner) {
     const Vera = await ethers.getContractFactory("VeraToken")
     const veraToken = await Vera.connect(owner).deploy(owner.address)
@@ -447,6 +447,7 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("0.1"),
+          title,
           randomAddress,
           partner
         )
@@ -455,6 +456,7 @@ describe("DonationPools", function () {
       expect(project.status).to.equal(0)
       expect(project.ong).to.equal(randomAddress)
       expect(project.partner).to.equal(partner)
+      expect(project.title).to.equal(title)
     })
 
     it("Should return all project IDs and project details", async function () {
@@ -466,6 +468,7 @@ describe("DonationPools", function () {
         projectId1,
         poolType,
         amount1,
+        title,
         randomAddress,
         partner
       )
@@ -476,6 +479,7 @@ describe("DonationPools", function () {
         projectId2,
         poolType,
         ethers.parseEther("0.2"),
+        title,
         randomAddress,
         partner
       )
@@ -495,6 +499,7 @@ describe("DonationPools", function () {
         0,
         0,
         blockNumber0,
+        title,
         false,
         poolType,
         0,
@@ -506,6 +511,7 @@ describe("DonationPools", function () {
         0,
         0,
         blockNumber1,
+        title,
         false,
         poolType,
         0,
@@ -523,6 +529,7 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("10"),
+          title,
           randomAddress,
           partner
         )
@@ -535,6 +542,7 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           0,
+          title,
           randomAddress,
           partner
         )
@@ -547,6 +555,7 @@ describe("DonationPools", function () {
           projectId,
           poolType,
           ethers.parseEther("1"),
+          title,
           ethers.ZeroAddress,
           partner
         )
@@ -558,6 +567,7 @@ describe("DonationPools", function () {
         projectId,
         poolType,
         ethers.parseEther("0.1"),
+        title,
         randomAddress,
         partner
       )
@@ -573,6 +583,7 @@ describe("DonationPools", function () {
         projectId,
         poolType,
         ethers.parseEther("0.1"),
+        title,
         randomAddress,
         partner
       )
@@ -736,6 +747,7 @@ describe("DonationPools", function () {
         projectId,
         poolType,
         ethers.parseEther("1"),
+        title,
         randomAddress,
         partner
       )
@@ -783,7 +795,14 @@ describe("DonationPools", function () {
         .donate(2, { value: ethers.parseEther("20") })
       await donationPoolsContract
         .connect(owner)
-        .createProject(2, 2, ethers.parseEther("1"), randomAddress, partner)
+        .createProject(
+          2,
+          2,
+          ethers.parseEther("1"),
+          title,
+          randomAddress,
+          partner
+        )
 
       await expect(
         donationPoolsContract.connect(donor).voteOnProject(2, true)
@@ -852,7 +871,14 @@ describe("DonationPools", function () {
 
       await donationPoolsContract
         .connect(owner)
-        .createProject(projectId, poolId, targetAmount, randomAddress, partner)
+        .createProject(
+          projectId,
+          poolId,
+          targetAmount,
+          title,
+          randomAddress,
+          partner
+        )
     })
 
     it("should revert if finallizeVotes called by non-owner", async function () {
@@ -930,16 +956,16 @@ describe("DonationPools", function () {
       addr2 = fixtures.addr2
       donor = fixtures.donor
       association = fixtures.association
+      const donationAmount = ethers.parseEther("2")
       await veraTokenContract.transferOwnership(
         await donationPoolsContract.getAddress()
       )
       await couponNFTContract.transferOwnership(
         await donationPoolsContract.getAddress()
       )
-      donationAmount = ethers.parseEther("2")
       await donationPoolsContract
         .connect(donor)
-        .donate(roomPoolIndex, { value: donationAmount })
+        .donate(roomPoolIndex, { value: ethers.parseEther("4") })
 
       await donationPoolsContract
         .connect(owner)
@@ -947,6 +973,7 @@ describe("DonationPools", function () {
           projectId,
           0,
           ethers.parseEther("2"),
+          title,
           association.getAddress(),
           partner
         )
@@ -955,24 +982,33 @@ describe("DonationPools", function () {
       await donationPoolsContract.connect(owner).finallizeVotes(projectId)
     })
 
-    it("Should create coupons successfully", async function () {
+    it("Should create coupons and redeem them successfully", async function () {
       const projectId = 1
       const couponValue = ethers.parseEther("1")
-      const initialBalance = await ethers.provider.getBalance(
-        couponNFTContract.target
+
+      const recipientBalanceBefore = await ethers.provider.getBalance(
+        partner.address
       )
+
       await expect(
-        donationPoolsContract
+        await donationPoolsContract
           .connect(association)
           .createCoupons(projectId, couponValue)
       )
         .to.emit(donationPoolsContract, "CouponsCreated")
         .withArgs(projectId, 2)
-
       const finalBalance = await ethers.provider.getBalance(
         couponNFTContract.target
       )
-      expect(finalBalance).to.be.gt(initialBalance)
+      expect(finalBalance).to.be.equal(ethers.parseEther("2"))
+      const redeemTx = await couponNFTContract
+        .connect(partner)
+        .redeemCoupon(0, projectId)
+      await redeemTx.wait()
+      const recipientBalanceAfter = await ethers.provider.getBalance(
+        partner.address
+      )
+      expect(recipientBalanceAfter).to.be.above(recipientBalanceBefore)
     })
 
     it("Should revert if targetAmount is not divisible by couponValue", async function () {
