@@ -5,7 +5,7 @@ import path from "path"
 // Paths
 const FRONTEND_CONFIG_PATH = path.join(
   __dirname,
-  "../../frontend/app/config/contract.ts"
+  "../../front/config/contract.ts"
 )
 const BASE_ARTIFACTS_DIR = path.join(__dirname, "../artifacts/contracts")
 

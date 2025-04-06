@@ -1,6 +1,8 @@
 import { ROUTES } from "@/utils/routes/routes.constants"
 import Link from "next/link"
 import Card from "../layout/Card"
+import { formatEther } from "viem"
+import EthereumIcon from "../layout/icons/EthereumIcon"
 
 interface PoolProjectsProps {
   poolType: number
@@ -22,8 +24,13 @@ const PoolProjects = ({ poolType, projects }: PoolProjectsProps) => {
           return (
             <Link href={`${ROUTES.PROJECT}${project.id}`} key={project.id}>
               <Card
-                title={project.id}
-                description={<p className="truncate">{project.description}</p>}
+                title={project.title}
+                description={
+                  <p className="truncate flex gap-2">
+                    {formatEther(project.amountRequired)}{" "}
+                    <EthereumIcon className="w-4 h-4" />
+                  </p>
+                }
                 className="max-w-64 hover:scale-105 cursor-pointer bg-base-100 border-gray-200 border-4"
               />
             </Link>

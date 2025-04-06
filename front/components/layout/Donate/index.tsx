@@ -107,7 +107,7 @@ const Donate = ({ poolNumber }: DonateProps) => {
                       onClick={() => setAmount(value)}
                     >
                       <EthereumIcon className="w-16 h-16" isLight />
-                      <span className="text-xl font-bold">Eth {value}</span>
+                      <span className="text-xl font-bold">{value} Eth</span>
                     </label>
                   ))}
 

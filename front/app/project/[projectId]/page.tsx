@@ -28,6 +28,7 @@ type ProjectPageRouteParams = {
 export default function ProjectComponent() {
   const { address } = useAccount()
   const [userType, setUserType] = useState<string | null>()
+  const [blockNumber, setBlockNumber] = useState<bigint>()
   const [events, setEvents] = useState([])
   useLayoutEffect(() => {
     const userType = window.localStorage.getItem("userType")
@@ -88,6 +89,18 @@ export default function ProjectComponent() {
       console.log(error)
     }
   }
+  const getBlockNumber = async () => {
+    const b = await publicClient.getBlockNumber()
+    setBlockNumber(b)
+  }
+  useEffect(() => {
+    const getBlock = async () => {
+      if (address) {
+        await getBlockNumber()
+      }
+    }
+    getBlock()
+  }, [])
 
   return (
     <div>
@@ -106,7 +119,14 @@ export default function ProjectComponent() {
           <p>Error</p>
         ) : projectContract ? (
           <div className="card-body">
-            {/* <h2 className="card-title text-2xl font-bold">{projectDB.title}</h2> */}
+            <h2 className="card-title text-2xl font-bold">
+              {projectContract.title}
+            </h2>
+            <p>This project is managed by {projectContract.ong}</p>
+            <p>
+              Funds will be transferred directly to the wallet{" "}
+              {projectContract.partner} in the form of NFTs.
+            </p>
             {/* <p>{projectDB.description}</p> */}
           </div>
         ) : null}
@@ -121,6 +141,27 @@ export default function ProjectComponent() {
                   </span>
                 ) : null}
               </div>
+            </div>
+          </div>
+        )}
+        {projectContract?.status === 0 && (
+          <div role="alert" className="alert alert-warning alert-soft">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <div>
+              The project was created in the block {projectContract.startBlock}.{" "}
+              <p>Actual Block {blockNumber}.</p>
             </div>
           </div>
         )}
@@ -139,7 +180,9 @@ export default function ProjectComponent() {
         {userType === UserType.Association && (
           <ReclaimFundsForm projectId={projectId} />
         )}
-        {<Coupons projectId={projectId} />}
+        {projectContract?.status && projectContract?.status > 2 && (
+          <Coupons projectId={projectId} />
+        )}
       </div>
     </div>
   )

@@ -78,6 +78,7 @@ export default function Create() {
           projectId,
           Number(poolValue)!,
           parseEther(targetAmount),
+          title,
           //@ts-ignore
           selectedAssociation,
           //@ts-ignore
@@ -100,7 +101,7 @@ export default function Create() {
           <form method="post" className="w-full my-2 " onSubmit={handleSubmit}>
             <fieldset className="fieldset max-w-72 w-xs glass to-primary border border-base-300 p-4 rounded-box center">
               <label className="fieldset-label" htmlFor="title">
-                Title
+                Title*
               </label>
               <input
                 type="text"
@@ -111,19 +112,8 @@ export default function Create() {
                 required
               />
 
-              <label className="fieldset-label" htmlFor="title">
-                Description
-              </label>
-              <textarea
-                className="textarea textarea-xl"
-                name="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
-
               <label className="fieldset-label" htmlFor="targetAmount">
-                Target Amount (Eth)
+                Target Amount (Eth)*
               </label>
               <input
                 type="number"
@@ -136,7 +126,7 @@ export default function Create() {
                 required
               />
               <label className="fieldset-label" htmlFor="partner">
-                Partner Addres (the one who will receive the amount)
+                Partner wallet (recipient of NFTs)*
               </label>
               <input
                 type="text"
@@ -148,7 +138,7 @@ export default function Create() {
                 required
               />
               <label className="fieldset-label" htmlFor="targetAmount">
-                Send to
+                Association wallet*
               </label>
               <select
                 className="select"
@@ -164,6 +154,7 @@ export default function Create() {
                     </option>
                   ))}
               </select>
+              <span>* required</span>
             </fieldset>
             <button className="btn btn-primary mt-4" disabled={isPending}>
               {isPending ? <Loading /> : "Add project"}
