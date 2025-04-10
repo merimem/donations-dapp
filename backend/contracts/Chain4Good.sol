@@ -281,10 +281,12 @@ contract Chain4Good is Ownable, ReentrancyGuard {
             revert SendAmountFailed();
         }
         
-        uint256 numberOfCoupons = projects[_projectId].amountRequired / couponValue;
-        couponNFT.createCoupons(couponValue, _projectId, project.partner, numberOfCoupons);      
         project.couponsHasBeenCreated = true;
         project.status = ProjectStatus.Funding;
+
+        uint256 numberOfCoupons = projects[_projectId].amountRequired / couponValue;
+        couponNFT.createCoupons(couponValue, _projectId, project.partner, numberOfCoupons);      
+       
 
         emit ProjectStatusChanged(_projectId, uint8(ProjectStatus.Funding));
         emit CouponsCreated(_projectId, numberOfCoupons);
