@@ -22,7 +22,7 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  defaultNetwork: "localhost",
+  //defaultNetwork: "localhost",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
@@ -31,11 +31,13 @@ const config: HardhatUserConfig = {
       gas: 30000000,
       blockGasLimit: 30000000,
     },
-    sepolia: {
-      url: RPC_URL_SEPOLIA,
-      chainId: 11155111,
-      accounts: [`0x${PRIVATE_KEY}`],
-    },
+    sepolia: RPC_URL_SEPOLIA
+      ? {
+          url: RPC_URL_SEPOLIA,
+          chainId: 11155111,
+          accounts: [`0x${PRIVATE_KEY}`],
+        }
+      : undefined,
   },
   etherscan: {
     apiKey: {
